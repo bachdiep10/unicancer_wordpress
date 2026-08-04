@@ -1,0 +1,38 @@
+<wpml-config>
+    <custom-fields>
+        <custom-field action="translate">doctor_degree</custom-field>
+        <custom-field action="translate">doctor_position</custom-field>
+        <custom-field action="translate">doctor_hospital</custom-field>
+        <custom-field action="translate">doctor_education</custom-field>
+        <custom-field action="translate">doctor_specialties</custom-field>
+        <custom-field action="translate">doctor_short_bio</custom-field>
+        <custom-field action="translate">doctor_languages</custom-field>
+        <custom-field action="translate">story_patient_name</custom-field>
+        <custom-field action="translate">story_country</custom-field>
+        <custom-field action="translate">story_cancer_type</custom-field>
+        <custom-field action="translate">story_treatment</custom-field>
+        <custom-field action="translate">story_summary</custom-field>
+        <custom-field action="translate">caller_name</custom-field>
+        <custom-field action="translate">caller_email</custom-field>
+        <custom-field action="translate">caller_message</custom-field>
+    </custom-fields>
+
+    <custom-types>
+        <custom-type translate="1">doctor</custom-type>
+        <custom-type translate="1">patient_story</custom-type>
+        <custom-type translate="1">cancer_type</custom-type>
+        <custom-type translate="1">technology</custom-type>
+        <custom-type translate="1">faq</custom-type>
+        <custom-type translate="0">consultation</custom-type>
+    </custom-types>
+
+    <taxonomies>
+        <taxonomy translate="1">cancer_category</taxonomy>
+        <taxonomy translate="1">doctor_specialty</taxonomy>
+        <taxonomy translate="1">faq_group</taxonomy>
+    </taxonomies>
+
+    <admin-texts>
+        <key name="theme_mods_uniasia-cancer-theme" />
+    </admin-texts>
+</wpml-config>

@@ -1,0 +1,35 @@
+/*
+Theme Name: UNI-ASIA Cancer Theme
+Theme URI: https://unicancercenter.com/
+Author: UNI-ASIA Cancer Hospital
+Author URI: https://unicancercenter.com/
+Description: WordPress theme chuyên nghiệp cho Bệnh viện Ung thư UNI-ASIA. Clone giao diện y nguyên từ unicancercenter.com. Hỗ trợ đa ngôn ngữ (Tiếng Việt, Tiếng Anh, Tiếng Indonesia, Tiếng Trung), Elementor Page Builder, đầy đủ Custom Post Types cho Bác sĩ, Câu chuyện bệnh nhân, Loại ung thư, Kỹ thuật điều trị và FAQ. Tối ưu SEO với Schema markup (MedicalOrganization, Physician, FAQPage).
+Version: 1.0.0
+Requires at least: 6.5
+Tested up to: 6.6
+Requires PHP: 8.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: uniasia
+Domain Path: /languages
+Tags: medical, hospital, cancer, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready, block-styles, wide-blocks, accessibility-ready, responsive-layout, custom-colors
+
+UNI-ASIA Cancer Theme is distributed under the terms of the GNU GPL v2 or later.
+*/
+
+/*
+ * Table of Contents:
+ *
+ * 1.0 - Normalize & Reset
+ * 2.0 - Typography
+ * 3.0 - Layout & Grid
+ * 4.0 - Header & Navigation
+ * 5.0 - Hero Section
+ * 6.0 - Components (Cards, Buttons, Forms)
+ * 7.0 - Sections (Stats, Team, Stories, FAQ)
+ * 8.0 - Footer
+ * 9.0 - Utilities
+ * 10.0 - Responsive Breakpoints
+ * 11.0 - Animations
+ * 12.0 - Print Styles
+ */

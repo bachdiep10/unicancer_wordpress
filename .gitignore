@@ -1,0 +1,49 @@
+# WordPress core
+/wp-admin/
+/wp-includes/
+/wp-*.php
+/xmlrpc.php
+/license.txt
+/readme.html
+/wp-content/index.php
+/wp-content/plugins/hello.php
+/wp-content/themes/twenty*/
+/wp-content/themes/index.php
+
+# Uploads (uncomment if you want to commit media)
+/wp-content/uploads/
+
+# Config files with secrets
+/wp-config.php
+/wp-config-local.php
+/.htaccess
+
+# Cache & logs
+/wp-content/cache/
+/wp-content/w3tc-config/
+/wp-content/advanced-cache.php
+/wp-content/backup-db/
+/wp-content/backups/
+/wp-content/debug.log
+/error.log
+/access.log
+
+# Node / build tools
+/node_modules/
+/dist/
+/build/
+/.cache/
+*.log
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+.env.production
+
+# IDE
+/.idea/
+/.vscode/
+*.swp
+*.swo

@@ -1,0 +1,164 @@
+{
+  "version": "0.4",
+  "title": "UNI-ASIA Homepage",
+  "type": "page",
+  "content": [
+    {
+      "id": "hero-section",
+      "elType": "section",
+      "settings": {
+        "background_background": "gradient",
+        "background_color": "#0066a4",
+        "background_color_stop": {
+          "unit": "%",
+          "size": 0
+        },
+        "background_color_b": "#004a7c",
+        "background_color_b_stop": {
+          "unit": "%",
+          "size": 100
+        },
+        "background_gradient_angle": {
+          "unit": "deg",
+          "size": 135
+        },
+        "padding": {
+          "unit": "px",
+          "top": "80",
+          "bottom": "80",
+          "right": "0",
+          "left": "0",
+          "isLinked": false
+        }
+      },
+      "elements": [
+        {
+          "id": "hero-content",
+          "elType": "column",
+          "settings": {
+            "_column_size": 100,
+            "_inline_size": null
+          },
+          "elements": [
+            {
+              "id": "hero-title",
+              "elType": "widget",
+              "settings": {
+                "title": "Bệnh viện Ung thư UNI-ASIA",
+                "header_size": "h1",
+                "align": "center",
+                "title_color": "#FFFFFF",
+                "typography_typography": "custom",
+                "typography_font_size": {
+                  "unit": "px",
+                  "size": 56
+                },
+                "typography_font_weight": "800",
+                "typography_line_height": {
+                  "unit": "px",
+                  "size": 64
+                }
+              },
+              "widgetType": "heading"
+            },
+            {
+              "id": "hero-subtitle",
+              "elType": "widget",
+              "settings": {
+                "title": "Quy tụ chuyên gia ung bướu hàng đầu Trung Quốc, dẫn đầu điều trị ung thư chính xác ít xâm lấn quốc tế",
+                "align": "center",
+                "title_color": "#E6F2FA",
+                "typography_typography": "custom",
+                "typography_font_size": {
+                  "unit": "px",
+                  "size": 20
+                }
+              },
+              "widgetType": "heading"
+            },
+            {
+              "id": "hero-stats",
+              "elType": "widget",
+              "settings": {
+                "stats": [
+                  {
+                    "number": "750,000+",
+                    "label": "Ca phẫu thuật xâm lấn tối thiểu"
+                  },
+                  {
+                    "number": "20,000+",
+                    "label": "Bệnh nhân / năm"
+                  },
+                  {
+                    "number": "1,000,000+",
+                    "label": "Lượt khám"
+                  }
+                ],
+                "columns": "3",
+                "number_color": "#00A3CC"
+              },
+              "widgetType": "uniasia-stats-counter"
+            },
+            {
+              "id": "hero-buttons",
+              "elType": "widget",
+              "settings": {
+                "align": "center",
+                "spacing": {
+                  "unit": "px",
+                  "size": 16
+                }
+              },
+              "elements": [],
+              "widgetType": "button"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "why-choose-section",
+      "elType": "section",
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "80",
+          "bottom": "80",
+          "right": "0",
+          "left": "0",
+          "isLinked": false
+        }
+      },
+      "elements": [
+        {
+          "id": "why-choose-column",
+          "elType": "column",
+          "settings": {
+            "_column_size": 100
+          },
+          "elements": [
+            {
+              "id": "why-choose-heading",
+              "elType": "widget",
+              "settings": {
+                "title": "Tại sao chọn chúng tôi",
+                "header_size": "h2",
+                "align": "center"
+              },
+              "widgetType": "heading"
+            },
+            {
+              "id": "why-choose-text",
+              "elType": "widget",
+              "settings": {
+                "title": "Hệ thống hàng đầu trong phòng ngừa, chẩn đoán và điều trị ung thư",
+                "align": "center"
+              },
+              "widgetType": "heading"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

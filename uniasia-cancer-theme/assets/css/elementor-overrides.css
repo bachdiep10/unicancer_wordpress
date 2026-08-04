@@ -1,0 +1,158 @@
+/*
+ * UNI-ASIA Cancer Theme - Elementor Overrides
+ *
+ * @package UNI_ASIA
+ */
+
+/* Ensure Elementor containers fit theme */
+.elementor-section.elementor-section-boxed > .elementor-container {
+	max-width: var(--uniasia-container);
+}
+
+/* Override Elementor button styles */
+.elementor-widget-button .elementor-button,
+.elementor-widget-uniasia-cta .elementor-button {
+	font-family: var(--uniasia-font-display);
+	border-radius: var(--uniasia-radius);
+	padding: 12px 28px;
+	font-weight: 600;
+	transition: all var(--uniasia-transition);
+}
+
+.elementor-widget-button .elementor-button:hover,
+.elementor-widget-uniasia-cta .elementor-button:hover {
+	transform: translateY(-2px);
+	box-shadow: var(--uniasia-shadow);
+}
+
+/* Elementor heading colors */
+.elementor-heading-title {
+	font-family: var(--uniasia-font-display);
+	color: var(--uniasia-text);
+	font-weight: 700;
+}
+
+/* Elementor section padding */
+.elementor-top-section {
+	padding: 50px 0;
+}
+
+.elementor-section-stretched.elementor-section-full_width {
+	max-width: 100%;
+}
+
+/* Elementor Forms */
+.elementor-form input[type="text"],
+.elementor-form input[type="email"],
+.elementor-form input[type="tel"],
+.elementor-form input[type="number"],
+.elementor-form textarea,
+.elementor-form select {
+	border-radius: var(--uniasia-radius);
+	padding: 12px 16px;
+	border: 1px solid var(--uniasia-border);
+	font-size: 14px;
+	transition: border-color var(--uniasia-transition);
+}
+
+.elementor-form input:focus,
+.elementor-form textarea:focus,
+.elementor-form select:focus {
+	border-color: var(--uniasia-primary);
+	box-shadow: 0 0 0 3px rgba(0, 102, 164, 0.1);
+}
+
+.elementor-form .elementor-button {
+	background-color: var(--uniasia-primary);
+	border-radius: var(--uniasia-radius);
+	padding: 12px 28px;
+}
+
+.elementor-form .elementor-button:hover {
+	background-color: var(--uniasia-primary-dark);
+}
+
+/* Elementor Pro Theme Builder compatibility */
+.elementor-location-header {
+	background-color: white;
+	box-shadow: var(--uniasia-shadow-sm);
+}
+
+.elementor-location-footer {
+	background-color: var(--uniasia-bg-dark);
+	color: white;
+}
+
+/* UNI-ASIA custom widget overrides */
+.uniasia-widget-heading {
+	text-align: center;
+	margin-bottom: 30px;
+}
+
+.uniasia-widget-heading h2 {
+	font-size: clamp(24px, 4vw, 38px);
+	margin-bottom: 12px;
+}
+
+/* Doctor Card widget */
+.elementor-widget-uniasia-doctor-card .doctor-card {
+	background-color: white;
+	border-radius: var(--uniasia-radius-lg);
+	overflow: hidden;
+	height: 100%;
+	transition: all var(--uniasia-transition);
+}
+
+.elementor-widget-uniasia-doctor-card .doctor-card:hover {
+	transform: translateY(-4px);
+	box-shadow: var(--uniasia-shadow-lg);
+}
+
+/* Stats Counter widget */
+.elementor-widget-uniasia-stats-counter .stat-item {
+	text-align: center;
+	padding: 24px 16px;
+}
+
+.elementor-widget-uniasia-stats-counter .stat-number {
+	font-size: clamp(28px, 4vw, 42px);
+	font-weight: 800;
+	color: var(--uniasia-primary);
+	margin-bottom: 8px;
+}
+
+/* FAQ Accordion widget */
+.elementor-widget-uniasia-faq-accordion .faq-item {
+	background-color: white;
+	border: 1px solid var(--uniasia-border);
+	border-radius: var(--uniasia-radius);
+	margin-bottom: 12px;
+}
+
+/* Process Steps widget */
+.elementor-widget-uniasia-step-process .step-item {
+	text-align: center;
+	position: relative;
+}
+
+/* Elementor carousel pagination */
+.elementor-swiper-button {
+	color: var(--uniasia-primary);
+}
+
+/* Elementor icon box */
+.elementor-widget-icon-box .elementor-icon {
+	color: var(--uniasia-primary);
+}
+
+/* Elementor image box */
+.elementor-widget-image-box .elementor-image-box-img img {
+	border-radius: var(--uniasia-radius);
+}
+
+/* Print friendly */
+@media print {
+	.elementor-section {
+		break-inside: avoid;
+	}
+}

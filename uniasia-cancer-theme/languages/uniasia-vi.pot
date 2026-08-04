@@ -1,0 +1,305 @@
+# Copyright (C) 2025 UNI-ASIA Cancer Hospital
+# This file is distributed under the GNU General Public License v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: UNI-ASIA Cancer Theme 1.0.0\n"
+"Report-Msgid-Bugs-To: https://unicancercenter.com/\n"
+"POT-Creation-Date: 2025-01-15 09:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: vi\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: UNI-ASIA Theme\n"
+"X-Domain: uniasia\n"
+
+#: inc/template-helpers.php
+msgid "Ca phẫu thuật xâm lấn tối thiểu"
+msgstr ""
+
+#: inc/template-helpers.php
+msgid "Bệnh nhân / năm"
+msgstr ""
+
+#: inc/template-helpers.php
+msgid "Lượt khám"
+msgstr ""
+
+#: template-parts/section-hero.php
+msgid "Bệnh viện Ung thư hàng đầu"
+msgstr ""
+
+#: template-parts/section-hero.php
+msgid "Bệnh viện Ung thư"
+msgstr ""
+
+#: template-parts/section-hero.php
+msgid "UNI-ASIA"
+msgstr ""
+
+#: template-parts/section-hero.php
+msgid "Quy tụ chuyên gia ung bướu hàng đầu Trung Quốc, dẫn đầu điều trị ung thư chính xác ít xâm lấn quốc tế"
+msgstr ""
+
+#: template-parts/section-hero.php
+msgid "Đặt lịch tư vấn miễn phí"
+msgstr ""
+
+#: template-parts/section-hero.php
+msgid "Tìm hiểu thêm"
+msgstr ""
+
+#: template-parts/section-why-choose.php
+msgid "Tại sao chọn chúng tôi"
+msgstr ""
+
+#: template-parts/section-why-choose.php
+msgid "Hệ thống hàng đầu trong phòng ngừa, chẩn đoán và điều trị ung thư"
+msgstr ""
+
+#: template-parts/section-why-choose.php
+msgid "Chuyên gia uy tín"
+msgstr ""
+
+#: template-parts/section-why-choose.php
+msgid "Chẩn đoán chính xác"
+msgstr ""
+
+#: template-parts/section-why-choose.php
+msgid "Điều trị cá nhân hóa"
+msgstr ""
+
+#: template-parts/section-why-choose.php
+msgid "Cơ sở đào tạo WATA đầu tiên"
+msgstr ""
+
+#: template-parts/section-mdt-team.php
+msgid "Đội ngũ MDT"
+msgstr ""
+
+#: template-parts/section-mdt-team.php
+msgid "Chuyên gia hàng đầu trong lĩnh vực can thiệp xâm lấn tối thiểu"
+msgstr ""
+
+#: template-parts/section-mdt-team.php
+msgid "Chi tiết"
+msgstr ""
+
+#: template-parts/section-mdt-team.php
+msgid "Xem tất cả bác sĩ"
+msgstr ""
+
+#: template-parts/section-cancer-types.php
+msgid "Phân loại ung bướu"
+msgstr ""
+
+#: template-parts/section-cancer-types.php
+msgid "Hầu hết các khối u ác tính ở giai đoạn sớm không có triệu chứng rõ ràng"
+msgstr ""
+
+#: template-parts/section-cancer-types.php
+msgid "Phát hiện sớm, chẩn đoán sớm và điều trị sớm là chiến lược then chốt để chiến thắng bệnh ung thư."
+msgstr ""
+
+#: template-parts/section-cancer-types.php
+msgid "Xem thêm loại ung thư"
+msgstr ""
+
+#: template-parts/section-treatment-tech.php
+msgid "Các kỹ thuật điều trị tiên tiến"
+msgstr ""
+
+#: template-parts/section-patient-stories.php
+msgid "Câu chuyện bệnh nhân"
+msgstr ""
+
+#: template-parts/section-patient-stories.php
+msgid "Mỗi hành trình tìm kiếm cơ hội điều trị đều khắc ghi lòng dũng cảm và hy vọng"
+msgstr ""
+
+#: template-parts/section-patient-stories.php
+msgid "Đọc tiếp"
+msgstr ""
+
+#: template-parts/section-international-guide.php
+msgid "Hướng dẫn quốc tế"
+msgstr ""
+
+#: template-parts/section-international-guide.php
+msgid "Dịch vụ một cửa cho bệnh nhân quốc tế"
+msgstr ""
+
+#: template-parts/section-international-guide.php
+msgid "Chi tiết dịch vụ"
+msgstr ""
+
+#: template-parts/section-faqs.php
+msgid "Câu hỏi thường gặp"
+msgstr ""
+
+#: template-parts/section-faqs.php
+msgid "Giải đáp thắc mắc về phòng ngừa, chẩn đoán và điều trị ung thư"
+msgstr ""
+
+#: template-parts/section-contact-form.php
+msgid "Tư vấn miễn phí"
+msgstr ""
+
+#: template-parts/section-contact-form.php
+msgid "Đặt lịch với chuyên gia ngay"
+msgstr ""
+
+#: template-parts/section-contact-form.php
+msgid "Họ và tên *"
+msgstr ""
+
+#: template-parts/section-contact-form.php
+msgid "Nhập họ tên của bạn"
+msgstr ""
+
+#: template-parts/section-contact-form.php
+msgid "Tuổi"
+msgstr ""
+
+#: template-parts/section-contact-form.php
+msgid "Số điện thoại *"
+msgstr ""
+
+#: template-parts/section-contact-form.php
+msgid "Email"
+msgstr ""
+
+#: template-parts/section-contact-form.php
+msgid "Câu hỏi của bạn"
+msgstr ""
+
+#: template-parts/section-contact-form.php
+msgid "Tôi đã đọc và đồng ý với thỏa thuận"
+msgstr ""
+
+#: template-parts/section-contact-form.php
+msgid "Chính sách bảo mật và Miễn trừ trách nhiệm"
+msgstr ""
+
+#: functions.php
+msgid "Primary Menu (Tiếng Việt)"
+msgstr ""
+
+#: functions.php
+msgid "Primary Menu (English)"
+msgstr ""
+
+#: functions.php
+msgid "Primary Menu (Indonesia)"
+msgstr ""
+
+#: functions.php
+msgid "Primary Menu (中文)"
+msgstr ""
+
+#: functions.php
+msgid "Footer Menu"
+msgstr ""
+
+#: header.php
+msgid "Bỏ qua đến nội dung chính"
+msgstr ""
+
+#: header.php
+msgid "Đặt lịch"
+msgstr ""
+
+#: footer.php
+msgid "Dịch vụ"
+msgstr ""
+
+#: footer.php
+msgid "Liên kết nhanh"
+msgstr ""
+
+#: footer.php
+msgid "Liên hệ"
+msgstr ""
+
+#: footer.php
+msgid "Hotline"
+msgstr ""
+
+#: footer.php
+msgid "Email"
+msgstr ""
+
+#: footer.php
+msgid "Địa chỉ"
+msgstr ""
+
+#: footer.php
+msgid "Trang chủ"
+msgstr ""
+
+#: footer.php
+msgid "Giới thiệu"
+msgstr ""
+
+#: footer.php
+msgid "Bác sĩ"
+msgstr ""
+
+#: footer.php
+msgid "Câu chuyện"
+msgstr ""
+
+#: footer.php
+msgid "Chính sách bảo mật"
+msgstr ""
+
+#: footer.php
+msgid "Điều khoản sử dụng"
+msgstr ""
+
+#: footer.php
+msgid "Lên đầu trang"
+msgstr ""
+
+#: footer.php
+msgid "Tư vấn nhanh"
+msgstr ""
+
+#: footer.php
+msgid "Loại ung thư"
+msgstr ""
+
+#: footer.php
+msgid "Kỹ thuật điều trị"
+msgstr ""
+
+#: footer.php
+msgid "Đội ngũ bác sĩ"
+msgstr ""
+
+#: footer.php
+msgid "Hướng dẫn quốc tế"
+msgstr ""
+
+#: footer.php
+msgid "Câu hỏi thường gặp"
+msgstr ""
+
+#: 404.php
+msgid "Không tìm thấy trang"
+msgstr ""
+
+#: 404.php
+msgid "Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển."
+msgstr ""
+
+#: 404.php
+msgid "Về trang chủ"
+msgstr ""
+
+#: 404.php
+msgid "Liên hệ với chúng tôi"
+msgstr ""

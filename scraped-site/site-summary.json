@@ -1,0 +1,87 @@
+{
+  "site_name": "UNI-ASIA Cancer Hospital",
+  "original_url": "https://unicancercenter.com/vi/",
+  "canonical_url": "https://uniasiacancer.com/vi/",
+  "language": "Vietnamese (vi)",
+  "description": "Bệnh viện Ung thu UNI-ASIA là bệnh viện ung thư chuyên khoa tại Trung Quốc tập trung vào điều trị khối u chính xác ít xâm lấn.",
+  "location": {
+    "address": "No. 40, Huaishudian Road, Chenghua District, Chengdu City, Sichuan Province, China (Attached No. 268)"
+  },
+  "contact": {
+    "phone": "+8615828178542",
+    "email": "service@uniasiacancer.com",
+    "whatsapp": "+84388925161",
+    "zalo": "https://zalo.me/84388925161"
+  },
+  "social_media": {
+    "facebook": "https://www.facebook.com/profile.php?id=61590458637448",
+    "tiktok": "https://www.tiktok.com/@asiacancer123",
+    "instagram": "https://www.instagram.com/rumahsakit596",
+    "youtube": "https://www.youtube.com/@Uniasiacancer"
+  },
+  "pages_scraped": [
+    {"file": "homepage.html", "url": "/vi/"},
+    {"file": "about-us.html", "url": "/vi/about-us/"},
+    {"file": "doctors.html", "url": "/vi/doctors/"},
+    {"file": "cancers.html", "url": "/vi/cancers/"},
+    {"file": "treatments.html", "url": "/vi/treatments/"},
+    {"file": "services.html", "url": "/vi/services/"},
+    {"file": "patient-stories.html", "url": "/vi/patient-stories/"},
+    {"file": "news.html", "url": "/vi/news/"},
+    {"file": "contact-us.html", "url": "/vi/contact-us/"},
+    {"file": "special-topics-liver-cancer.html", "url": "/vi/special-topics/liver-cancer"},
+    {"file": "cancers-lung.html", "url": "/vi/cancers/lung"},
+    {"file": "treatments-tai-tae-tace.html", "url": "/vi/treatments/tai-tae-tace"},
+    {"file": "treatments-nanoknife.html", "url": "/vi/treatments/nanoknife"},
+    {"file": "treatments-rfa.html", "url": "/vi/treatments/rfa"},
+    {"file": "treatments-mwa.html", "url": "/vi/treatments/mwa"},
+    {"file": "news-13.html", "url": "/vi/news/13/"}
+  ],
+  "assets": [
+    {"file": "assets/Layout.css", "url": "/_astro/Layout.CYNodIgd.css"}
+  ],
+  "navigation_structure": {
+    "main_menu": [
+      {"name": "Trang chủ", "url": "/vi/"},
+      {"name": "Về chúng tôi", "url": "/vi/about-us/"},
+      {"name": "Đội ngũ MDT", "url": "/vi/doctors/"},
+      {"name": "Chủ đề ung thư", "url": "/vi/special-topics/liver-cancer"},
+      {"name": "Ung thư", "url": "/vi/cancers/"},
+      {"name": "Trung tâm điều trị", "url": "/vi/treatments/"},
+      {"name": "Dịch vụ y tế", "url": "/vi/services/"},
+      {"name": "Câu chuyện bệnh nhân", "url": "/vi/patient-stories/"},
+      {"name": "Tin tức", "url": "/vi/news/"},
+      {"name": "Liên hệ", "url": "/vi/contact-us/"}
+    ],
+    "cancer_types": [
+      {"name": "Ung thư phổi", "url": "/vi/cancers/lung"},
+      {"name": "Ung thư gan", "url": "/vi/cancers/liver"},
+      {"name": "Ung thư vú", "url": "/vi/cancers/breast"},
+      {"name": "Ung thư đại tràng", "url": "/vi/cancers/colon"},
+      {"name": "Ung thư trực tràng", "url": "/vi/cancers/rectal"},
+      {"name": "Ung thư tuyến tiền liệt", "url": "/vi/cancers/prostate"},
+      {"name": "Ung thư dạ dày", "url": "/vi/cancers/gastric"},
+      {"name": "Ung thư thực quản", "url": "/vi/cancers/esophageal"}
+    ],
+    "treatment_methods": [
+      {"name": "Kỹ thuật truyền thuốc và nút mạch qua đường dẫn mạch", "url": "/vi/treatments/tai-tae-tace"},
+      {"name": "Kỹ thuật tiêu hủy khối u bằng dao nano", "url": "/vi/treatments/nanoknife"},
+      {"name": "Kỹ thuật cấy hạt phóng xạ I-125", "url": "/vi/treatments/lodine-125"},
+      {"name": "Kỹ thuật áp lạnh khối u bằng dao Argon-Helium", "url": "/vi/treatments/argon-helium-knife"},
+      {"name": "Kỹ thuật đốt u bằng sóng cao tần", "url": "/vi/treatments/rfa"},
+      {"name": "Kỹ thuật đốt u bằng vi sóng", "url": "/vi/treatments/mwa"},
+      {"name": "Kỹ thuật đặt stent", "url": "/vi/treatments/stenting"},
+      {"name": "Tạo hình thân đốt sống qua da", "url": "/vi/treatments/pv"}
+    ]
+  },
+  "technology_stack": {
+    "framework": "Astro",
+    "css_framework": "Tailwind CSS",
+    "icons": "Lucide Icons + Ant Design Icons"
+  },
+  "statistics": {
+    "minimally_invasive_surgeries": "750,000+",
+    "cancer_patients_per_year": "20,000+",
+    "outpatient_visits": "1,000,000+"
+  }
+}

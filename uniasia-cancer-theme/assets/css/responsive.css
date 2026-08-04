@@ -1,0 +1,356 @@
+/*
+ * UNI-ASIA Cancer Theme - Responsive Stylesheet
+ *
+ * @package UNI_ASIA
+ */
+
+/* Tablet (max-width: 1024px) */
+@media (max-width: 1024px) {
+	:root {
+		--uniasia-container-padding: 20px;
+	}
+
+	.section-padding {
+		padding: 60px 0;
+	}
+
+	.hero-stats {
+		gap: 16px;
+	}
+
+	.process-steps {
+		grid-template-columns: repeat(3, 1fr);
+	}
+
+	.footer-grid {
+		grid-template-columns: 1fr 1fr;
+		gap: 32px;
+	}
+
+	.tech-tab-grid {
+		grid-template-columns: 1fr;
+		gap: 24px;
+	}
+
+	.tech-tab-image {
+		order: 2;
+	}
+
+	.contact-grid {
+		grid-template-columns: 1fr;
+		gap: 32px;
+	}
+
+	.doctor-detail-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.doctor-detail-sidebar {
+		position: static;
+	}
+
+	.cancer-types-grid {
+		grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	}
+}
+
+/* Mobile (max-width: 768px) */
+@media (max-width: 768px) {
+	:root {
+		--uniasia-container-padding: 16px;
+	}
+
+	.section-padding {
+		padding: 50px 0;
+	}
+
+	.top-bar {
+		font-size: 12px;
+	}
+
+	.top-bar-inner {
+		justify-content: center;
+	}
+
+	.top-bar-left,
+	.top-bar-right {
+		gap: 12px;
+	}
+
+	.top-bar-right {
+		width: 100%;
+		justify-content: center;
+		margin-top: 4px;
+	}
+
+	.header-inner {
+		flex-wrap: wrap;
+		padding: 12px 0;
+	}
+
+	.site-branding {
+		order: 1;
+	}
+
+	.menu-toggle {
+		display: block;
+		order: 3;
+	}
+
+	.header-actions {
+		order: 2;
+		gap: 8px;
+	}
+
+	.header-btn span {
+		display: none;
+	}
+
+	.header-btn-whatsapp,
+	.header-btn-primary {
+		padding: 9px;
+		width: 40px;
+		height: 40px;
+		justify-content: center;
+	}
+
+	.main-navigation {
+		order: 4;
+		flex-basis: 100%;
+		max-height: 0;
+		overflow: hidden;
+		transition: max-height var(--uniasia-transition);
+	}
+
+	.main-navigation.is-open {
+		max-height: 600px;
+	}
+
+	.nav-menu {
+		flex-direction: column;
+		gap: 0;
+		padding: 16px 0;
+	}
+
+	.nav-menu > li {
+		width: 100%;
+	}
+
+	.nav-link {
+		padding: 12px 0;
+		border-bottom: 1px solid var(--uniasia-border);
+	}
+
+	.menu-toggle[aria-expanded="true"] .menu-toggle-icon {
+		background: transparent;
+	}
+
+	.menu-toggle[aria-expanded="true"] .menu-toggle-icon::before {
+		transform: translateY(7px) rotate(45deg);
+	}
+
+	.menu-toggle[aria-expanded="true"] .menu-toggle-icon::after {
+		transform: translateY(-7px) rotate(-45deg);
+	}
+
+	.hero-section {
+		min-height: 500px;
+	}
+
+	.hero-content {
+		padding: 40px 0;
+	}
+
+	.hero-stats {
+		grid-template-columns: 1fr;
+	}
+
+	.hero-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.hero-actions .btn {
+		justify-content: center;
+	}
+
+	.why-choose-grid,
+	.cancer-types-grid,
+	.doctors-grid,
+	.stories-grid,
+	.technology-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.process-steps {
+		grid-template-columns: 1fr;
+	}
+
+	.process-step-connector {
+		display: block;
+		width: 2px;
+		height: 24px;
+		background-color: var(--uniasia-border);
+		margin: 0 auto;
+	}
+
+	.tech-tabs-nav {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		flex-wrap: nowrap;
+	}
+
+	.tech-tab-btn {
+		min-width: 120px;
+		white-space: nowrap;
+	}
+
+	.tech-tabs-content {
+		padding: 20px;
+	}
+
+	.contact-form-col {
+		padding: 20px;
+	}
+
+	.consultation-form .form-row {
+		grid-template-columns: 1fr;
+		gap: 0;
+	}
+
+	.footer-grid {
+		grid-template-columns: 1fr;
+		gap: 32px;
+	}
+
+	.footer-bottom-inner {
+		flex-direction: column;
+		text-align: center;
+	}
+
+	.footer-bottom-links {
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+
+	.floating-btn {
+		width: 48px;
+		height: 48px;
+	}
+
+	.floating-btn-whatsapp {
+		bottom: 130px;
+	}
+
+	.floating-btn-contact {
+		bottom: 70px;
+	}
+
+	.floating-btn svg {
+		width: 20px;
+		height: 20px;
+	}
+
+	.section-header {
+		margin-bottom: 32px;
+	}
+
+	.story-detail-meta {
+		gap: 12px;
+	}
+
+	.story-detail-cta {
+		padding: 24px 16px;
+	}
+
+	.archive-filters {
+		gap: 6px;
+	}
+
+	.filter-btn {
+		padding: 6px 12px;
+		font-size: 13px;
+	}
+}
+
+/* Small Mobile (max-width: 480px) */
+@media (max-width: 480px) {
+	.why-choose-grid,
+	.cancer-types-grid,
+	.doctors-grid,
+	.stories-grid,
+	.technology-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.section-title {
+		font-size: 22px;
+	}
+
+	.hero-title {
+		font-size: 28px;
+	}
+
+	.hero-stat-number {
+		font-size: 24px;
+	}
+
+	.btn-lg {
+		padding: 12px 24px;
+		font-size: 14px;
+	}
+
+	.contact-info-item {
+		flex-direction: column;
+		gap: 8px;
+	}
+}
+
+/* Print Styles */
+@media print {
+	.top-bar,
+	.site-header,
+	.floating-btn,
+	.back-to-top,
+	.footer-social,
+	.hero-actions {
+		display: none;
+	}
+
+	body {
+		color: black;
+		background: white;
+	}
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: more) {
+	:root {
+		--uniasia-primary: #003d63;
+		--uniasia-text: #000000;
+		--uniasia-text-light: #1a1a1a;
+	}
+}
+
+/* RTL Support */
+[dir="rtl"] .hero-stats,
+[dir="rtl"] .footer-stats {
+	direction: rtl;
+}
+
+[dir="rtl"] .nav-menu .current-menu-item > .nav-link::before {
+	left: auto;
+	right: 0;
+}
