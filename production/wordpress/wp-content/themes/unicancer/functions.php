@@ -179,6 +179,40 @@ function unicancer_redirect_prefixed_source_slug() {
 add_action( 'template_redirect', 'unicancer_redirect_prefixed_source_slug', 0 );
 
 /**
+ * Resolve top-level news posts by both slug and requested language. AI-created
+ * Polylang drafts can temporarily share the Vietnamese source slug; WordPress
+ * otherwise selects an arbitrary matching row for logged-in editors, causing
+ * a `/vi/.../` URL to render Indonesian (or another language) content.
+ */
+function unicancer_serve_language_matched_news_post() {
+	if ( is_admin() || wp_doing_ajax() ) { return; }
+	$path = (string) wp_parse_url( $_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH );
+	if ( ! preg_match( '#^/(vi|en|id|zh-cn)/([^/]+)/?$#i', $path, $match ) ) { return; }
+	$lang = strtolower( $match[1] );
+	$slug = sanitize_title( rawurldecode( $match[2] ) );
+	$candidates = get_posts(
+		array(
+			'name'           => $slug,
+			'post_type'      => 'post',
+			'post_status'    => array( 'publish', 'draft', 'pending', 'private', 'future' ),
+			'posts_per_page' => -1,
+			'orderby'        => 'ID',
+			'order'          => 'ASC',
+			'suppress_filters' => true,
+		)
+	);
+	foreach ( $candidates as $candidate ) {
+		if ( ! function_exists( 'pll_get_post_language' ) || $lang !== pll_get_post_language( $candidate->ID, 'slug' ) ) { continue; }
+		if ( 'publish' !== $candidate->post_status && ! current_user_can( 'read_post', $candidate->ID ) ) { continue; }
+		status_header( 200 );
+		nocache_headers();
+		echo unicancer_render_wordpress_page( $candidate ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		exit;
+	}
+}
+add_action( 'template_redirect', 'unicancer_serve_language_matched_news_post', -200 );
+
+/**
  * Serve legacy numeric news articles below the selected language prefix.
  * These articles have no separate Polylang post yet; without this early
  * fallback WordPress canonicalizes `/en/news/21/` to the translated News
