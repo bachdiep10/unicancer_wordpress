@@ -79,7 +79,12 @@ function unicancer_mirror_file() {
 
 	if ( '' === $path ) {
 		$path = 'vi';
-	} elseif ( 0 !== strpos( $path, 'vi' ) ) {
+	} elseif ( preg_match( '#^(?:en|id|zh-cn)(?:/(.*))?$#i', $path, $language_route ) ) {
+		// Legacy news/detail routes only exist in the Vietnamese mirror. Serve
+		// that content as a safe fallback while keeping navigation in the active
+		// language, instead of returning a blank/404 translated URL.
+		$path = 'vi/' . ltrim( $language_route[1] ?? '', '/' );
+	} elseif ( ! preg_match( '#^vi(?:/|$)#i', $path ) ) {
 		$path = 'vi/' . $path;
 	}
 
@@ -174,6 +179,25 @@ function unicancer_redirect_prefixed_source_slug() {
 add_action( 'template_redirect', 'unicancer_redirect_prefixed_source_slug', 0 );
 
 /**
+ * Serve legacy numeric news articles below the selected language prefix.
+ * These articles have no separate Polylang post yet; without this early
+ * fallback WordPress canonicalizes `/en/news/21/` to the translated News
+ * archive and visitors can never open the card they selected.
+ */
+function unicancer_serve_translated_legacy_news() {
+	if ( is_admin() || wp_doing_ajax() ) { return; }
+	$path = (string) wp_parse_url( $_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH );
+	if ( ! preg_match( '#^/(?:en|id|zh-cn)/news/[0-9]+/?$#i', $path ) ) { return; }
+	$file = unicancer_mirror_file();
+	if ( ! $file ) { return; }
+	status_header( 200 );
+	nocache_headers();
+	echo unicancer_render_mirror( $file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	exit;
+}
+add_action( 'template_redirect', 'unicancer_serve_translated_legacy_news', -100 );
+
+/**
  * Convert a URL found in the static snapshot to its WordPress/local equivalent.
  */
 function unicancer_migrate_url( $url, $source_file ) {
@@ -199,11 +223,12 @@ function unicancer_migrate_url( $url, $source_file ) {
 
 	if ( in_array( $host, array( 'unicancercenter.com', 'www.unicancercenter.com' ), true ) ) {
 		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
-		if ( preg_match( '#^/(?:vi|en|id|zh-cn)(?:/|$)#', $path ) ) {
-			// Snapshot links sometimes contain a language prefix in front of the
-			// Vietnamese slug. Resolve the underlying post and use the actual
-			// Polylang translation permalink instead of preserving that fake URL.
-			return unicancer_localize_internal_url( home_url( '/' . ltrim( $path, '/' ) ) . $fragment );
+		if ( preg_match( '#^/(vi|en|id|zh-cn)(?:/|$)#', $path, $path_language ) ) {
+			// URLs saved in translated content are already intentional localized
+			// routes. Preserve them verbatim: resolving `/news/21/` through
+			// url_to_postid() can incorrectly match the News parent page and make
+			// every article card point back to the archive.
+			return home_url( '/' . ltrim( $path, '/' ) ) . $fragment;
 		}
 		return unicancer_localize_internal_url( home_url( '/' . ltrim( $path, '/' ) ) . $fragment );
 	}

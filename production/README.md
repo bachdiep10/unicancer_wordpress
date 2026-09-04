@@ -11,3 +11,13 @@ This directory tracks custom code deployed to `unicancercenter.com`.
 
 Site content, uploads, credentials, generated caches, and WordPress core are
 not stored here.
+
+## 2026-09-04
+
+- Migrated every OSS and theme-mirror image reference found in WordPress
+  content to the native Media Library (887 content rows updated across the
+  migration passes; zero OSS references remain).
+- Added a safe language-preserving fallback for legacy numeric news routes,
+  such as `/en/news/21/`, so translated news cards open the article instead of
+  redirecting to the archive.
+- Added the repeatable migration/audit utility under `production/tools/`.
