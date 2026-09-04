@@ -571,7 +571,7 @@ function unicancer_render_mirror( $file, $html_override = null ) {
 		},
 		$html
 	);
-	$html = preg_replace( '#</head>#i', '<style>@media(max-width:1023px){.home-carousel{aspect-ratio:auto!important}.home-carousel-slide picture{display:block;width:100%;height:100%}.home-carousel-slide picture img{width:100%;height:auto;object-fit:cover}}</style></head>', $html, 1 );
+	$html = preg_replace( '#</head>#i', '<style>.home-carousel-slide>a{position:relative}.uc-localized-banner-copy{position:absolute;inset:0 auto 0 0;z-index:2;display:flex;align-items:center;width:70%;box-sizing:border-box;padding:5% 4%;background:linear-gradient(90deg,#ebf7ff 0%,#ebf7ff 86%,rgba(235,247,255,.96) 94%,rgba(235,247,255,0) 100%);color:#20252b;font:700 clamp(24px,2.4vw,46px)/1.25 Inter,Roboto,Arial,sans-serif}.ucb-story-name{display:flex;align-items:center;gap:12px}.ucb-story-name span{display:inline-block;border-radius:14px;background:#1685d1;color:#fff;padding:3px 9px;font-size:13px;white-space:nowrap}@media(max-width:1023px){.home-carousel{aspect-ratio:auto!important}.home-carousel-slide picture{display:block;width:100%;height:100%}.home-carousel-slide picture img{width:100%;height:auto;object-fit:cover}.uc-localized-banner-copy{width:76%;padding:4%;font-size:clamp(17px,4vw,28px)}}@media(max-width:600px){.uc-localized-banner-copy{width:80%;font-size:18px}}</style></head>', $html, 1 );
 
 	// WordPress removes the original empty Iconify spans from the consultation
 	// language cards. Restore the headset as inline SVG so it has no dependency.
@@ -712,6 +712,62 @@ function unicancer_news_page_content( $lang = 'vi', $archive_id = 0 ) {
 	<?php return ob_get_clean();
 }
 
+function unicancer_home_patient_stories( $lang ) {
+	$copy = array(
+		'en' => array( 'title' => 'Patient stories', 'description' => 'At UNI-ASIA Cancer Hospital, every journey in search of care is marked by courage and hope, and every story bears witness to doctors and patients working together to overcome disease.', 'more' => 'More Cases', 'country' => 'China', 'diseases' => array( 'Liver Cancer', 'Lung Cancer', 'Liver Cancer', 'Bladder Cancer' ) ),
+		'id' => array( 'title' => 'Kisah Pasien', 'description' => 'Di Rumah Sakit Kanker UNI-ASIA, setiap perjalanan pengobatan mencerminkan keberanian, harapan, dan kerja sama antara dokter serta pasien.', 'more' => 'Kasus Lainnya', 'country' => 'Tiongkok', 'diseases' => array( 'Kanker Hati', 'Kanker Paru-paru', 'Kanker Hati', 'Kanker Kandung Kemih' ) ),
+		'zh-cn' => array( 'title' => '患者故事', 'description' => '在寰亚医院，每一段求医路都镌刻着勇气与希望，每一个故事都是医患同心、共克疾病的见证。', 'more' => '更多案例', 'country' => '中国', 'diseases' => array( '肝癌', '肺癌', '肝癌', '膀胱癌' ) ),
+	);
+	$text = $copy[ $lang ] ?? $copy['en'];
+	$slugs = array( 'liver-cancer-tace-treatment-patient-lw', 'lung-cancer-tace-treatment-patient-wxc', 'liver-cancer-tace-treatment-patient-lhy', 'bladder-cancer-tace-treatment-patient-cd' );
+	$fallback_images = array( 'ms3eqalv-53930cb8.jpg', 'mreretiq-76b2e192.jpg', 'mr37w1jn-4c0d8553.jpg', 'mr1tz4v6-b8951a7b.jpg' );
+	$items = array();
+	foreach ( $slugs as $index => $slug ) {
+		$source = get_page_by_path( $slug, OBJECT, 'patient_story' );
+		$item_id = $source && function_exists( 'pll_get_post' ) ? (int) pll_get_post( $source->ID, $lang ) : 0;
+		$item = $item_id ? get_post( $item_id ) : $source;
+		if ( ! $item || 'publish' !== $item->post_status ) { continue; }
+		$image = get_the_post_thumbnail_url( $item->ID, 'large' );
+		if ( ! $image ) { $image = trailingslashit( get_template_directory_uri() ) . 'mirror/huan-ya.oss-ap-southeast-1.aliyuncs.com/media/' . $fallback_images[ $index ]; }
+		$name = function_exists( 'get_field' ) ? get_field( 'uc_patient_name', $item->ID ) : '';
+		$items[] = array( 'post' => $item, 'name' => $name ?: $item->post_title, 'image' => $image, 'disease' => $text['diseases'][ $index ] );
+	}
+	$archive = unicancer_localize_internal_url( home_url( '/patient-stories/' ), $lang );
+	ob_start(); ?>
+	<section class="ucb-section ucb-section--stories"><div class="ucb-heading"><div class="ucb-heading__copy"><h2><?php echo esc_html( $text['title'] ); ?></h2><p><?php echo esc_html( $text['description'] ); ?></p></div><a href="<?php echo esc_url( $archive ); ?>"><?php echo esc_html( $text['more'] ); ?> <b>&rarr;</b></a></div><div class="ucb-grid ucb-stories">
+	<?php foreach ( $items as $entry ) : $item = $entry['post']; $description = $item->post_excerpt ?: wp_strip_all_tags( $item->post_content ); ?><article class="ucb-card"><a href="<?php echo esc_url( get_permalink( $item ) ); ?>"><img src="<?php echo esc_url( $entry['image'] ); ?>" alt="<?php echo esc_attr( $entry['name'] ); ?>"><div class="ucb-card__tag"><?php echo esc_html( $entry['disease'] ); ?></div><div class="ucb-card__body"><div class="ucb-story-name"><h3><?php echo esc_html( $entry['name'] ); ?></h3><span><?php echo esc_html( $text['country'] ); ?></span></div><p><?php echo esc_html( wp_trim_words( $description, 25, '…' ) ); ?></p></div></a></article><?php endforeach; ?>
+	</div></section>
+	<?php return ob_get_clean();
+}
+
+function unicancer_localize_home_sections( $content, $lang ) {
+	if ( 'vi' === $lang ) { return $content; }
+	wp_enqueue_style( 'unicancer-acf-blocks' );
+	$stories = unicancer_home_patient_stories( $lang );
+	$content = preg_replace_callback(
+		'#<section\b[^>]*>.*?</section>#is',
+		function ( $match ) use ( $stories ) {
+			return preg_match( '#Patient stories|Kisah Pasien|患者故事#iu', $match[0] ) ? $stories : $match[0];
+		},
+		$content
+	);
+	$banner_copy = array(
+		'en' => array( 'Your liver cancer treatment plan deserves a second opinion', 'Advanced minimally invasive cancer treatment', 'UNI-ASIA Cancer Hospital', 'International precision cancer care', 'Expert multidisciplinary cancer treatment' ),
+		'id' => array( 'Rencana pengobatan kanker hati Anda layak mendapatkan pendapat kedua', 'Teknologi pengobatan kanker minimal invasif yang canggih', 'Rumah Sakit Kanker UNI-ASIA', 'Layanan kanker presisi internasional', 'Pengobatan kanker oleh tim multidisiplin ahli' ),
+		'zh-cn' => array( '肝癌治疗方案，值得中国肿瘤专家的第二诊疗意见', '国际先进肿瘤微创治疗技术', '成都寰亚肿瘤医院', '国际精准肿瘤诊疗服务', '多学科专家联合诊疗' ),
+	);
+	$lines = $banner_copy[ $lang ] ?? $banner_copy['en'];
+	$content = preg_replace_callback(
+		'#(<a\b[^>]*aria-label="Go to banner\s+([0-9]+)"[^>]*>)(.*?)(</a>)#is',
+		function ( $match ) use ( $lines ) {
+			$index = max( 0, ( (int) $match[2] - 1 ) % count( $lines ) );
+			return $match[1] . $match[3] . '<span class="uc-localized-banner-copy">' . esc_html( $lines[ $index ] ) . '</span>' . $match[4];
+		},
+		$content
+	);
+	return $content;
+}
+
 function unicancer_render_wordpress_page( $post ) {
 	$shell_file = UNICANCER_MIRROR_DIR . '/uniasiacancer.com/vi/index.html';
 	$html = file_get_contents( $shell_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
@@ -727,6 +783,10 @@ function unicancer_render_wordpress_page( $post ) {
 	$html = preg_replace( '#<link\s+rel=["\']canonical["\'][^>]*>#i', '<link rel="canonical" href="' . esc_url( $canonical ) . '">', $html, 1 );
 	$html = preg_replace( '#<meta\s+property=["\']og:locale["\'][^>]*>#i', '<meta property="og:locale" content="' . esc_attr( $locale[ $lang ] ?? 'vi_VN' ) . '">', $html, 1 );
 	$raw_content = $post->post_content;
+	$front_translation = function_exists( 'pll_get_post' ) ? (int) pll_get_post( (int) get_option( 'page_on_front' ), $lang ) : 0;
+	if ( 'page' === $post->post_type && $front_translation && (int) $post->ID === $front_translation ) {
+		$raw_content = unicancer_localize_home_sections( $raw_content, $lang );
+	}
 	// Script tags were intentionally stripped while importing official pages,
 	// but their minified JavaScript bodies remained visible as paragraphs.
 	$raw_content = preg_replace( '#<p>\s*const\s+.*?</p>#isu', '', $raw_content );
