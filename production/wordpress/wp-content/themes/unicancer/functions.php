@@ -684,16 +684,30 @@ function unicancer_customize_patient_story( $content, $post ) {
 	return $output;
 }
 
-function unicancer_news_page_content() {
-	$parent = get_term_by( 'slug', 'tin-tuc', 'category' );
+function unicancer_news_page_content( $lang = 'vi', $archive_id = 0 ) {
+	$labels = array(
+		'vi'    => array( 'title' => 'Tin tức', 'description' => 'Cập nhật thông tin bệnh viện, truyền thông đưa tin và các hoạt động trao đổi học thuật của UNI-ASIA.', 'all' => 'Tất cả tin tức', 'nav' => 'Danh mục tin tức' ),
+		'en'    => array( 'title' => 'News', 'description' => 'Hospital updates, media coverage and academic exchange activities from UNI-ASIA.', 'all' => 'All', 'nav' => 'News categories' ),
+		'id'    => array( 'title' => 'Berita', 'description' => 'Informasi rumah sakit, liputan media, dan kegiatan pertukaran akademik UNI-ASIA.', 'all' => 'Semua', 'nav' => 'Kategori berita' ),
+		'zh-cn' => array( 'title' => '新闻动态', 'description' => '寰亚医院资讯、媒体报道与学术交流活动。', 'all' => '全部', 'nav' => '新闻分类' ),
+	);
+	$text = $labels[ $lang ] ?? $labels['vi'];
+	$vi_parent = get_term_by( 'slug', 'tin-tuc', 'category' );
+	$parent_id = $vi_parent ? (int) $vi_parent->term_id : 0;
+	if ( $parent_id && 'vi' !== $lang && function_exists( 'pll_get_term' ) ) {
+		$translated_parent = (int) pll_get_term( $parent_id, $lang );
+		if ( $translated_parent ) { $parent_id = $translated_parent; }
+	}
+	$parent = $parent_id ? get_term( $parent_id, 'category' ) : false;
 	$children = $parent ? get_terms( array( 'taxonomy' => 'category', 'parent' => $parent->term_id, 'hide_empty' => false ) ) : array();
 	$selected = isset( $_GET['news_category'] ) ? sanitize_title( wp_unslash( $_GET['news_category'] ) ) : '';
-	$args = array( 'post_type' => 'post', 'post_status' => 'publish', 'posts_per_page' => 20, 'orderby' => 'date', 'order' => 'DESC' );
+	$args = array( 'post_type' => 'post', 'post_status' => 'publish', 'posts_per_page' => 20, 'orderby' => 'date', 'order' => 'DESC', 'lang' => $lang, 'suppress_filters' => false );
 	if ( $selected ) { $args['category_name'] = $selected; }
 	$posts = get_posts( $args );
+	$archive_url = $archive_id ? get_permalink( $archive_id ) : home_url( '/news/' );
 	ob_start(); ?>
-	<section class="uc-news-page"><header><h1>Tin tức</h1><p>Cập nhật thông tin bệnh viện, truyền thông đưa tin và các hoạt động trao đổi học thuật của UNI-ASIA.</p></header>
-	<nav class="uc-news-tabs" aria-label="Danh mục tin tức"><a class="<?php echo $selected ? '' : 'is-active'; ?>" href="<?php echo esc_url( home_url( '/news/' ) ); ?>">Tất cả tin tức</a><?php foreach ( $children as $child ) : ?><a class="<?php echo $selected === $child->slug ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'news_category', $child->slug, home_url( '/news/' ) ) ); ?>"><?php echo esc_html( $child->name ); ?></a><?php endforeach; ?></nav>
+	<section class="uc-news-page"><header><h1><?php echo esc_html( $text['title'] ); ?></h1><p><?php echo esc_html( $text['description'] ); ?></p></header>
+	<nav class="uc-news-tabs" aria-label="<?php echo esc_attr( $text['nav'] ); ?>"><a class="<?php echo $selected ? '' : 'is-active'; ?>" href="<?php echo esc_url( $archive_url ); ?>"><?php echo esc_html( $text['all'] ); ?></a><?php foreach ( $children as $child ) : ?><a class="<?php echo $selected === $child->slug ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'news_category', $child->slug, $archive_url ) ); ?>"><?php echo esc_html( $child->name ); ?></a><?php endforeach; ?></nav>
 	<div class="uc-news-grid"><?php foreach ( $posts as $news ) : $image = get_the_post_thumbnail_url( $news->ID, 'large' ); if ( ! $image && preg_match( '/<img[^>]+src=["\']([^"\']+)/i', $news->post_content, $match ) ) { $image = $match[1]; } $terms = $parent ? wp_get_post_terms( $news->ID, 'category', array( 'parent' => $parent->term_id ) ) : array(); ?><article><a href="<?php echo esc_url( get_permalink( $news ) ); ?>"><?php if ( $image ) : ?><img src="<?php echo esc_url( $image ); ?>" alt="<?php echo esc_attr( $news->post_title ); ?>"><?php endif; ?><div class="uc-news-card-body"><?php if ( $terms && ! is_wp_error( $terms ) ) : ?><span><?php echo esc_html( $terms[0]->name ); ?></span><?php endif; ?><h2><?php echo esc_html( $news->post_title ); ?></h2><p><?php echo esc_html( wp_trim_words( $news->post_excerpt ?: wp_strip_all_tags( $news->post_content ), 24, '…' ) ); ?></p><small><?php echo esc_html( get_the_date( 'd/m/Y', $news ) ); ?></small></div></a></article><?php endforeach; ?></div></section>
 	<?php return ob_get_clean();
 }
@@ -718,7 +732,10 @@ function unicancer_render_wordpress_page( $post ) {
 	$raw_content = preg_replace( '#<p>\s*const\s+.*?</p>#isu', '', $raw_content );
 	$has_embedded_home_scripts = false !== strpos( $raw_content, '<script' );
 	$raw_content = preg_replace( '#(</button>)\s*</p>#i', '$1', $raw_content );
-	if ( 'page' === $post->post_type && 'news' === $post->post_name ) { $raw_content = unicancer_news_page_content(); }
+	$vi_news_id = 'page' === $post->post_type && function_exists( 'pll_get_post' ) ? (int) pll_get_post( $post->ID, 'vi' ) : 0;
+	if ( 'page' === $post->post_type && ( 'news' === $post->post_name || ( $vi_news_id && 'news' === get_post_field( 'post_name', $vi_news_id ) ) ) ) {
+		$raw_content = unicancer_news_page_content( $lang, $post->ID );
+	}
 	if ( 'patient_story' === $post->post_type && 'vi' === $lang ) { $raw_content = unicancer_customize_patient_story( $raw_content, $post ); }
 	if ( in_array( $post->post_type, array( 'patient_story', 'doctor', 'cancer', 'treatment', 'post' ), true ) ) {
 		$raw_content = unicancer_replace_article_sidebar( $raw_content );
