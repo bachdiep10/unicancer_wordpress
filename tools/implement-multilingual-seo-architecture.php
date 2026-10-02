@@ -59,6 +59,9 @@ function ucseo_set( $post, $data ) {
 	if ( ! $apply ) { return; }
 	ucseo_backup( $post->ID, 'post_name', $post->post_name );
 	if ( isset( $changes['slug'] ) ) {
+		// A target used briefly during an interrupted migration can be reserved in
+		// this post's old-slug history, causing WordPress to append "-2".
+		delete_post_meta( $post->ID, '_wp_old_slug', $slug );
 		wp_update_post( array( 'ID' => $post->ID, 'post_name' => $slug ) );
 		$stats['slug']++;
 	}
@@ -122,14 +125,14 @@ $diseases = array(
 	24 => array( 'endometrial-cancer', 'ung thư nội mạc tử cung', 'endometrial cancer', 'kanker endometrium', '子宫内膜癌' ),
 	25 => array( 'esophageal-cancer', 'ung thư thực quản', 'esophageal cancer', 'kanker esofagus', '食管癌' ),
 	26 => array( 'gallbladder-cancer', 'ung thư túi mật', 'gallbladder cancer', 'kanker kandung empedu', '胆囊癌' ),
-	27 => array( 'glioma', 'u thần kinh đệm não', 'glioma', 'glioma', '脑胶质瘤' ),
+	27 => array( 'glioma', 'u thần kinh đệm não', 'glioma', 'glioma otak', '脑胶质瘤' ),
 	28 => array( 'kidney-cancer', 'ung thư thận', 'kidney cancer', 'kanker ginjal', '肾癌' ),
 	29 => array( 'laryngeal-cancer', 'ung thư thanh quản', 'laryngeal cancer', 'kanker laring', '喉癌' ),
 	30 => array( 'liver-cancer', 'ung thư gan', 'liver cancer', 'kanker hati', '肝癌' ),
 	31 => array( 'lung-cancer', 'ung thư phổi', 'lung cancer', 'kanker paru-paru', '肺癌' ),
 	32 => array( 'lymphoma', 'u lympho', 'lymphoma', 'limfoma', '淋巴瘤' ),
 	33 => array( 'melanoma', 'u hắc tố ác tính', 'melanoma', 'melanoma ganas', '恶性黑色素瘤' ),
-	34 => array( 'multiple-myeloma', 'đa u tủy xương', 'multiple myeloma', 'multiple myeloma', '多发性骨髓瘤' ),
+	34 => array( 'multiple-myeloma', 'đa u tủy xương', 'multiple myeloma', 'mieloma multipel', '多发性骨髓瘤' ),
 	35 => array( 'nasopharyngeal-cancer', 'ung thư vòm họng', 'nasopharyngeal cancer', 'kanker nasofaring', '鼻咽癌' ),
 	36 => array( 'oral-cancer', 'ung thư khoang miệng', 'oral cancer', 'kanker mulut', '口腔癌' ),
 	37 => array( 'osteosarcoma', 'sarcoma xương', 'osteosarcoma', 'osteosarkoma', '骨肉瘤' ),
@@ -149,8 +152,34 @@ foreach ( $diseases as $source_id => $row ) {
 	foreach ( $translations as $lang => $id ) {
 		if ( ! isset( $lang_index[ $lang ] ) || ! ( $post = get_post( $id ) ) ) { continue; }
 		$focus = $row[ $lang_index[ $lang ] ];
-		$slug = 'vi' === $lang ? $row[0] : ( 'zh-cn' === $lang ? $row[0] : sanitize_title( $focus ) );
+		// A localized slug avoids cross-language collisions and numeric suffixes.
+		$slug = sanitize_title( $focus );
 		ucseo_set( $post, ucseo_data( $focus, $slug, $lang ) );
+	}
+}
+
+// Supporting cancer articles use narrower intent than the disease pillar.
+$cancer_support = array(
+	19  => array( 'ung thư là gì', 'what is cancer', 'apa itu kanker', '癌症是什么' ),
+	21  => array( 'bác sĩ chữa ung bướu uy tín', 'trusted cancer specialists', 'dokter kanker terpercaya', '权威肿瘤专家' ),
+	47  => array( 'bệnh viện ung bướu tại Thành Đô', 'cancer hospital in Chengdu', 'rumah sakit kanker di Chengdu', '成都肿瘤专科医院' ),
+	142 => array( 'tổng quan ung thư vú', 'breast cancer overview', 'panduan kanker payudara', '乳腺癌概述' ),
+	143 => array( 'tổng quan ung thư cổ tử cung', 'cervical cancer overview', 'panduan kanker serviks', '宫颈癌概述' ),
+	144 => array( 'điều trị ung thư đại trực tràng ít xâm lấn', 'minimally invasive colorectal cancer treatment', 'pengobatan kanker kolorektal minimal invasif', '结直肠癌微创治疗' ),
+	145 => array( 'phác đồ điều trị ung thư gan', 'liver cancer treatment plan', 'rencana pengobatan kanker hati', '肝癌治疗方案' ),
+	146 => array( 'điều trị ung thư gan ít xâm lấn', 'minimally invasive liver cancer treatment', 'pengobatan kanker hati minimal invasif', '肝癌微创治疗' ),
+	147 => array( 'tổng quan ung thư phổi', 'lung cancer overview', 'panduan kanker paru-paru', '肺癌概述' ),
+	148 => array( 'điều trị ung thư phổi ít xâm lấn', 'minimally invasive lung cancer treatment', 'pengobatan kanker paru-paru minimal invasif', '肺癌微创治疗' ),
+	149 => array( 'tổng quan ung thư tuyến tiền liệt', 'prostate cancer overview', 'panduan kanker prostat', '前列腺癌概述' ),
+	150 => array( 'tổng quan ung thư dạ dày', 'stomach cancer overview', 'panduan kanker lambung', '胃癌概述' ),
+	151 => array( 'điều trị ung thư dạ dày ít xâm lấn', 'minimally invasive stomach cancer treatment', 'pengobatan kanker lambung minimal invasif', '胃癌微创治疗' ),
+);
+foreach ( $cancer_support as $source_id => $terms ) {
+	$translations = function_exists( 'pll_get_post_translations' ) ? pll_get_post_translations( $source_id ) : array( 'vi' => $source_id );
+	foreach ( $translations as $lang => $id ) {
+		if ( ! isset( $lang_index[ $lang ] ) || ! ( $post = get_post( $id ) ) ) { continue; }
+		$focus = $terms[ $lang_index[ $lang ] - 1 ];
+		ucseo_set( $post, ucseo_data( $focus, sanitize_title( $focus ), $lang ) );
 	}
 }
 
@@ -158,7 +187,7 @@ foreach ( $diseases as $source_id => $row ) {
 $treatments = array(
 	129 => array( 'argon-helium-cryoablation', 'áp lạnh Argon-Helium', 'Argon-Helium cryoablation', 'krioablasi Argon-Helium', '氩氦刀冷冻消融' ),
 	130 => array( 'chemo-targeted-immunotherapy', 'hóa trị nhắm trúng đích miễn dịch', 'chemo targeted immunotherapy', 'kemoterapi target imunoterapi', '化疗靶向免疫治疗' ),
-	131 => array( 'deb-tace', 'nút mạch vi cầu mang thuốc DEB-TACE', 'DEB-TACE', 'DEB-TACE', '载药微球栓塞 DEB-TACE' ),
+	131 => array( 'deb-tace', 'nút mạch vi cầu mang thuốc DEB-TACE', 'DEB-TACE', 'embolisasi DEB-TACE', '载药微球栓塞 DEB-TACE' ),
 	132 => array( 'high-intensity-focused-ultrasound', 'siêu âm hội tụ cường độ cao HIFU', 'high intensity focused ultrasound HIFU', 'ultrasonografi terfokus HIFU', '高强度聚焦超声 HIFU' ),
 	133 => array( 'intra-arterial-therapy', 'nút mạch hóa chất TACE', 'transarterial chemoembolization TACE', 'kemoembolisasi transarteri TACE', '经动脉化疗栓塞术 TACE' ),
 	134 => array( 'iodine-125-seed-implantation', 'cấy hạt phóng xạ Iod-125', 'Iodine-125 seed implantation', 'implantasi biji Iodium-125', '碘125粒子植入' ),
@@ -175,20 +204,26 @@ foreach ( $treatments as $source_id => $row ) {
 	foreach ( $translations as $lang => $id ) {
 		if ( ! isset( $lang_index[ $lang ] ) || ! ( $post = get_post( $id ) ) ) { continue; }
 		$focus = $row[ $lang_index[ $lang ] ];
-		$slug = 'zh-cn' === $lang ? $row[0] : ( 'vi' === $lang ? $row[0] : sanitize_title( $focus ) );
+		$slug = sanitize_title( $focus );
 		ucseo_set( $post, ucseo_data( $focus, $slug, $lang ) );
 	}
 }
 
 // Doctors own a name + specialty intent, not a broad cancer keyword.
-$doctors = get_posts( array( 'post_type' => 'doctor', 'post_status' => array( 'publish', 'draft' ), 'posts_per_page' => -1, 'orderby' => 'ID', 'order' => 'ASC', 'suppress_filters' => true ) );
-foreach ( $doctors as $post ) {
+global $wpdb;
+$doctor_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'doctor' AND post_status IN ('publish','draft') ORDER BY ID ASC" );
+foreach ( $doctor_ids as $doctor_id ) {
+	$post = get_post( $doctor_id );
+	if ( ! $post ) { continue; }
 	$lang = ucseo_lang( $post->ID );
 	$name = trim( preg_replace( '/\s*[|｜].*$/u', '', ucseo_clean( $post->post_title ) ) );
 	$source = function_exists( 'pll_get_post' ) ? pll_get_post( $post->ID, 'vi' ) : 0;
-	$base = $source ? get_post_field( 'post_name', $source ) : $post->post_name;
+	$source_original = $source ? get_post_meta( $source, '_uc_pre_seo_architecture_20261002_post_name', true ) : '';
+	$base = $source_original ? $source_original : ( $source ? get_post_field( 'post_name', $source ) : $post->post_name );
 	$focus = 'vi' === $lang ? 'bác sĩ ' . $name . ' chuyên khoa ung bướu' : ( 'id' === $lang ? 'Dokter ' . $name . ' spesialis kanker' : ( 'zh-cn' === $lang ? $name . ' 肿瘤专家' : 'Dr. ' . $name . ' cancer specialist' ) );
-	ucseo_set( $post, ucseo_data( $focus, preg_replace( '/-(2|3|4)$/', '', $base ), $lang, 'doctor' ) );
+	$base = preg_replace( '/-(2|3|4)$/', '', $base );
+	$slug = 'en' === $lang ? $base : ( 'vi' === $lang ? $base . '-bac-si-ung-buou' : ( 'id' === $lang ? 'dokter-' . $base : $base . '-zhong-liu-zhuan-jia' ) );
+	ucseo_set( $post, ucseo_data( $focus, $slug, $lang, 'doctor' ) );
 }
 
 echo wp_json_encode( array( 'mode' => $apply ? 'apply' : 'dry-run', 'stats' => $stats ), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT ) . PHP_EOL;
