@@ -39,7 +39,34 @@ add_action( 'send_headers', 'unicancer_send_noindex_header', 999 );
 function unicancer_block_robots_txt( $output, $public ) {
 	return "User-agent: *\nDisallow: /\n";
 }
-add_filter( 'robots_txt', 'unicancer_block_robots_txt', 999, 2 );
+// Run after SEO plugins so the staging rule is authoritative and robots.txt
+// never contains a second, contradictory User-agent block.
+add_filter( 'robots_txt', 'unicancer_block_robots_txt', PHP_INT_MAX, 2 );
+
+/**
+ * Protect established public routes while the multilingual URL map is being
+ * repaired. These redirects do not rename posts or mutate stored slugs.
+ */
+function unicancer_redirect_stable_legacy_routes() {
+	if ( is_admin() || wp_doing_ajax() ) { return; }
+	$path = trim( (string) wp_parse_url( $_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH ), '/' );
+	$destination = '';
+
+	if ( '' === $path ) {
+		// Do not use pll_home_url() here: while the static front page is being
+		// queried Polylang can return the page's long title-derived permalink.
+		$destination = trailingslashit( untrailingslashit( (string) get_option( 'home' ) ) . '/vi' );
+	} elseif ( 'vi/cau-chuyen-benh-nhan' === $path ) {
+		$page = get_post( 184 );
+		$destination = $page && 'publish' === $page->post_status ? get_permalink( $page ) : home_url( '/vi/patient-stories/' );
+	}
+
+	if ( ! $destination ) { return; }
+	if ( ! empty( $_SERVER['QUERY_STRING'] ) ) { $destination .= '?' . $_SERVER['QUERY_STRING']; }
+	wp_safe_redirect( $destination, 301, 'UNI-ASIA stable legacy route' );
+	exit;
+}
+add_action( 'template_redirect', 'unicancer_redirect_stable_legacy_routes', -1000 );
 
 function unicancer_setup() {
 	load_theme_textdomain( 'unicancer', get_template_directory() . '/languages' );
@@ -124,7 +151,7 @@ function unicancer_current_language_slug() {
  */
 function unicancer_localize_internal_url( $url, $lang = '' ) {
 	$lang = $lang ?: unicancer_current_language_slug();
-	if ( 'vi' === $lang || '' === $url || '#' === $url[0] ) { return $url; }
+	if ( '' === $url || '#' === $url[0] ) { return $url; }
 	$parts = wp_parse_url( html_entity_decode( $url, ENT_QUOTES, 'UTF-8' ) );
 	if ( false === $parts ) { return $url; }
 	$host = $parts['host'] ?? '';
@@ -467,9 +494,20 @@ function unicancer_render_mirror( $file, $html_override = null ) {
 
 	$html = preg_replace( '#<!-- Mirrored.*?-->#s', '', $html );
 	$html = preg_replace( '#<!-- Added by HTTrack -->.*?<!-- /Added by HTTrack -->#s', '', $html );
-	// wp_head() is injected below and is the single source for robots/SEO tags.
-	// Keeping the legacy mirror tags here would produce duplicate metadata.
-	$html = preg_replace( '#<meta\s+name=["\']robots["\'][^>]*>#i', '', $html );
+	// wp_head() is injected below and is the single source for SEO metadata.
+	// A raw mirror still carries title, canonical, hreflang, social and schema
+	// markup from the archived website. Remove it only for raw mirror renders;
+	// database-backed renders already inject their own canonical before entering
+	// this function.
+	if ( null === $html_override ) {
+		$html = preg_replace( '#<title\b[^>]*>.*?</title>#is', '', $html );
+		$html = preg_replace( '#<link\b(?=[^>]*\brel=["\']canonical["\'])[^>]*>#i', '', $html );
+		$html = preg_replace( '#<link\b(?=[^>]*\brel=["\']alternate["\'])(?=[^>]*\bhreflang=["\'][^"\']+["\'])[^>]*>#i', '', $html );
+		$html = preg_replace( '#<meta\b(?=[^>]*(?:name|property)=["\'](?:description|keywords|robots|og:[^"\']+|twitter:[^"\']+)["\'])[^>]*>#i', '', $html );
+		$html = preg_replace( '#<script\b(?=[^>]*\btype=["\']application/ld\+json["\'])[^>]*>.*?</script>#is', '', $html );
+	} else {
+		$html = preg_replace( '#<meta\s+name=["\']robots["\'][^>]*>#i', '', $html );
+	}
 
 	// Submit consultation forms to WordPress and store entries in the admin area.
 	$form_script = '<script>(function(){document.querySelectorAll(".consultation-form").forEach(function(form){form.addEventListener("submit",async function(event){event.preventDefault();event.stopImmediatePropagation();var button=form.querySelector("button[type=submit]"),status=form.querySelector(".form-status"),data=new FormData(form);data.append("action","unicancer_submit_consultation");data.append("nonce","' . esc_js( wp_create_nonce( 'unicancer_consultation' ) ) . '");data.append("source_url",window.location.href);if(button){button.disabled=true;button.textContent=form.dataset.submittingText||"Đang gửi..."}if(status){status.classList.remove("hidden");status.textContent=""}try{var response=await fetch("' . esc_url( admin_url( 'admin-ajax.php' ) ) . '",{method:"POST",body:data,credentials:"same-origin"}),json=await response.json();if(!response.ok||!json.success)throw new Error(json.data&&json.data.message?json.data.message:(form.dataset.errorText||"Gửi không thành công."));if(status){status.textContent=json.data.message;status.style.color="#159648"}form.reset();var dialog=document.getElementById("success-modal");if(dialog&&dialog.showModal)dialog.showModal()}catch(error){if(status){status.textContent=error.message;status.style.color="#dc2626"}}finally{if(button){button.disabled=false;button.textContent=form.dataset.submitText||"Đặt lịch với chuyên gia ngay"}}},true)})})();</script>';
@@ -595,7 +633,7 @@ function unicancer_render_mirror( $file, $html_override = null ) {
 	$html = preg_replace_callback(
 		'/<a\b([^>]*\bdata-contact-type=(["\'])(form|phone|email|zalo|whatsapp)\2[^>]*)>/i',
 		function ( $matches ) {
-			$url = unicancer_contact_url( strtolower( $matches[3] ) );
+			$url = unicancer_localize_internal_url( unicancer_contact_url( strtolower( $matches[3] ) ) );
 			$attributes = preg_replace( '/\s+href=(["\']).*?\1/i', '', $matches[1] );
 			return '<a href="' . esc_url( $url, array( 'http', 'https', 'mailto', 'tel' ) ) . '"' . $attributes . '>';
 		},
@@ -620,7 +658,76 @@ function unicancer_render_mirror( $file, $html_override = null ) {
 	$wp_footer = ob_get_clean();
 	$html      = preg_replace( '#</body>#i', $wp_footer . '</body>', $html, 1 );
 
+	// The Vietnamese language root is served directly from the mirror. Give it
+	// the same deterministic SEO head as database-backed translated homepages.
+	if ( null === $html_override ) {
+		$request_path = trim( (string) wp_parse_url( $_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH ), '/' );
+		if ( in_array( $request_path, array( 'vi', 'en', 'id', 'zh-cn' ), true ) ) {
+			$front_id = (int) get_option( 'page_on_front' );
+			$post_id  = function_exists( 'pll_get_post' ) ? (int) pll_get_post( $front_id, $request_path ) : $front_id;
+			$seo_post = $post_id ? get_post( $post_id ) : null;
+			if ( $seo_post ) { $html = unicancer_normalize_rendered_seo( $html, $seo_post ); }
+		}
+		if ( is_post_type_archive() ) {
+			$archive_sources = array(
+				'doctor'        => 182,
+				'cancer'        => 180,
+				'treatment'     => 188,
+				'patient_story' => 184,
+			);
+			$post_type = (string) get_query_var( 'post_type' );
+			if ( isset( $archive_sources[ $post_type ] ) ) {
+				$lang = unicancer_current_language_slug();
+				$archive_id = function_exists( 'pll_get_post' ) ? (int) pll_get_post( $archive_sources[ $post_type ], $lang ) : $archive_sources[ $post_type ];
+				$archive_post = $archive_id ? get_post( $archive_id ) : null;
+				if ( $archive_post ) { $html = unicancer_normalize_rendered_seo( $html, $archive_post ); }
+			}
+		}
+	}
+
 	return $html;
+}
+
+/**
+ * Replace inherited/query-context metadata with one canonical multilingual
+ * cluster for the exact post being rendered.
+ */
+function unicancer_normalize_rendered_seo( $html, $post ) {
+	if ( ! $post instanceof WP_Post ) { return $html; }
+	$lang = function_exists( 'pll_get_post_language' ) ? pll_get_post_language( $post->ID, 'slug' ) : 'vi';
+	$lang = $lang ?: 'vi';
+	$front_id = (int) get_option( 'page_on_front' );
+	$is_front = function_exists( 'pll_get_post' ) && (int) $post->ID === (int) pll_get_post( $front_id, $lang );
+	$language_root = static function ( $slug ) {
+		return trailingslashit( untrailingslashit( (string) get_option( 'home' ) ) . '/' . $slug );
+	};
+	$canonical = $is_front ? $language_root( $lang ) : get_permalink( $post );
+
+	$title = trim( (string) get_post_meta( $post->ID, '_yoast_wpseo_title', true ) );
+	if ( $title && function_exists( 'wpseo_replace_vars' ) ) { $title = wpseo_replace_vars( $title, $post ); }
+	if ( ! $title ) { $title = get_the_title( $post ) . ' | ' . get_bloginfo( 'name' ); }
+
+	$alternates = array();
+	$translations = function_exists( 'pll_get_post_translations' ) ? (array) pll_get_post_translations( $post->ID ) : array( $lang => $post->ID );
+	foreach ( $translations as $translation_lang => $translation_id ) {
+		$translation_lang = (string) $translation_lang;
+		$translation_post = get_post( (int) $translation_id );
+		if ( ! $translation_post || 'publish' !== $translation_post->post_status ) { continue; }
+		$translation_is_front = function_exists( 'pll_get_post' ) && (int) $translation_id === (int) pll_get_post( $front_id, $translation_lang );
+		$href = $translation_is_front ? $language_root( $translation_lang ) : get_permalink( $translation_post );
+		$hreflang = 'zh-cn' === $translation_lang ? 'zh-CN' : $translation_lang;
+		$alternates[ $translation_lang ] = '<link rel="alternate" hreflang="' . esc_attr( $hreflang ) . '" href="' . esc_url( $href ) . '">';
+	}
+	$x_default = isset( $alternates['vi'] ) ? $language_root( 'vi' ) : $canonical;
+
+	$html = preg_replace( '#<title\b[^>]*>.*?</title>#is', '', $html );
+	$html = preg_replace( '#<link\b(?=[^>]*\brel=["\']canonical["\'])[^>]*>#i', '', $html );
+	$html = preg_replace( '#<link\b(?=[^>]*\brel=["\']alternate["\'])(?=[^>]*\bhreflang=["\'][^"\']+["\'])[^>]*>#i', '', $html );
+	$seo = '<title>' . esc_html( $title ) . '</title>'
+		. '<link rel="canonical" href="' . esc_url( $canonical ) . '">'
+		. implode( '', $alternates )
+		. '<link rel="alternate" hreflang="x-default" href="' . esc_url( $x_default ) . '">';
+	return preg_replace( '#</head>#i', $seo . '</head>', $html, 1 );
 }
 
 /**
@@ -821,6 +928,15 @@ function unicancer_render_wordpress_page( $post ) {
 	// Script tags were intentionally stripped while importing official pages,
 	// but their minified JavaScript bodies remained visible as paragraphs.
 	$raw_content = preg_replace( '#<p>\s*const\s+.*?</p>#isu', '', $raw_content );
+	// Some imported homepages retain the same carousel program as an encoded
+	// bare text node between two sections rather than inside a paragraph. Remove
+	// only that generated program; the functional carousel script is added by
+	// this theme below.
+	$raw_content = preg_replace(
+		'#(</section>)\s*const\s+[A-Za-z_$][A-Za-z0-9_$]*\s*=\s*document\.querySelectorAll\(.*?(?=<section\b)#isu',
+		'$1',
+		$raw_content
+	);
 	$has_embedded_home_scripts = false !== strpos( $raw_content, '<script' );
 	$raw_content = preg_replace( '#(</button>)\s*</p>#i', '$1', $raw_content );
 	$vi_news_id = 'page' === $post->post_type && function_exists( 'pll_get_post' ) ? (int) pll_get_post( $post->ID, 'vi' ) : 0;
@@ -867,7 +983,7 @@ function unicancer_render_wordpress_page( $post ) {
 		$extra_css = str_replace( '</style>', '.unicancer-wordpress-page section.max-w-384.flex>.grow>h1{max-width:1000px;font-size:clamp(26px,2.2vw,34px)!important;line-height:1.3!important}</style>', $extra_css );
 	}
 	$html = preg_replace( '#</head>#i', $extra_css . '</head>', $html, 1 );
-	return unicancer_render_mirror( $shell_file, $html );
+	return unicancer_normalize_rendered_seo( unicancer_render_mirror( $shell_file, $html ), $post );
 }
 
 /**
