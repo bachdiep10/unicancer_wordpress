@@ -209,6 +209,48 @@ foreach ( $treatments as $source_id => $row ) {
 	}
 }
 
+// Patient stories target unique case intent and never compete with disease pillars.
+$patient_stories = array(
+	97  => array( 'ca ung thư bàng quang MWA', 'bladder cancer MWA case', 'kasus kanker kandung kemih MWA', '膀胱癌微波消融案例' ),
+	98  => array( 'ca ung thư bàng quang TACE', 'bladder cancer TACE case', 'kasus kanker kandung kemih TACE', '膀胱癌TACE案例' ),
+	99  => array( 'ung thư vú giai đoạn cuối TACE', 'advanced breast cancer TACE case', 'kasus kanker payudara lanjut TACE', '晚期乳腺癌TACE案例' ),
+	100 => array( 'ung thư cổ tử cung di căn TACE', 'metastatic cervical cancer TACE case', 'kanker serviks metastasis TACE', '转移性宫颈癌TACE案例' ),
+	101 => array( 'ca ung thư đại trực tràng TACE', 'colorectal cancer TACE case', 'kasus kanker kolorektal TACE', '结直肠癌TACE案例' ),
+	102 => array( 'ung thư đại trực tràng di căn TACE', 'metastatic colorectal cancer TACE case', 'kanker kolorektal metastasis TACE', '转移性结直肠癌TACE案例' ),
+	103 => array( 'ung thư gan tái phát WKnife', 'recurrent liver cancer WKnife case', 'kanker hati kambuh WKnife', '复发性肝癌WKnife案例' ),
+	104 => array( 'ung thư gan vàng da TACE', 'liver cancer jaundice TACE case', 'kanker hati penyakit kuning TACE', '肝癌黄疸TACE案例' ),
+	105 => array( 'ung thư gan TACE bệnh nhân Philippines', 'liver cancer TACE Philippines case', 'kanker hati TACE pasien Filipina', '菲律宾患者肝癌TACE案例' ),
+	106 => array( 'ung thư gan TACE hai lần', 'repeat liver cancer TACE case', 'kanker hati TACE berulang', '肝癌二次TACE案例' ),
+	107 => array( 'ung thư gan TACE người cao tuổi', 'elderly liver cancer TACE case', 'kanker hati TACE lansia', '老年肝癌TACE案例' ),
+	108 => array( 'ung thư gan trẻ em TACE', 'pediatric liver cancer TACE case', 'kanker hati anak TACE', '儿童肝癌TACE案例' ),
+	109 => array( 'ung thư gan tái phát TACE', 'recurrent liver cancer TACE case', 'kanker hati kambuh TACE', '复发性肝癌TACE案例' ),
+	110 => array( 'ung thư gan TACE Giáo sư Chu', 'liver cancer TACE professor Chu case', 'kanker hati TACE Profesor Chu', '楚教授肝癌TACE案例' ),
+	111 => array( 'ung thư gan di căn cột sống', 'liver cancer spinal metastasis case', 'kanker hati metastasis tulang belakang', '肝癌脊柱转移案例' ),
+	112 => array( 'ung thư phổi áp lạnh Argon Helium', 'lung cancer cryoablation case', 'kasus krioablasi kanker paru', '肺癌冷冻消融案例' ),
+	113 => array( 'ung thư phổi điều trị can thiệp', 'interventional lung cancer treatment case', 'kasus intervensi kanker paru', '肺癌介入治疗案例' ),
+	114 => array( 'ung thư gan áp lạnh Argon Helium', 'liver cancer cryoablation case', 'kasus krioablasi kanker hati', '肝癌冷冻消融案例' ),
+	115 => array( 'ca ung thư phổi TACE', 'lung cancer TACE case', 'kasus kanker paru TACE', '肺癌TACE案例' ),
+	116 => array( 'ung thư phổi giai đoạn muộn TACE', 'advanced lung cancer TACE case', 'kanker paru lanjut TACE', '晚期肺癌TACE案例' ),
+	117 => array( 'khối u gan áp lạnh Argon Helium', 'liver tumor cryoablation case', 'kasus krioablasi tumor hati', '肝肿瘤冷冻消融案例' ),
+	118 => array( 'ung thư vòm họng cấy hạt Iod-125', 'nasopharyngeal cancer Iodine-125 case', 'kanker nasofaring Iodium-125', '鼻咽癌碘125粒子案例' ),
+	119 => array( 'ca ung thư vòm họng TACE', 'nasopharyngeal cancer TACE case', 'kasus kanker nasofaring TACE', '鼻咽癌TACE案例' ),
+	120 => array( 'ca ung thư tuyến tụy NanoKnife', 'pancreatic cancer NanoKnife case', 'kasus kanker pankreas NanoKnife', '胰腺癌纳米刀案例' ),
+	121 => array( 'NanoKnife tuyến tụy nhóm máu hiếm', 'NanoKnife rare blood type case', 'NanoKnife golongan darah langka', '稀有血型胰腺癌纳米刀案例' ),
+	122 => array( 'ung thư tuyến tụy giai đoạn IV NanoKnife', 'stage IV pancreatic cancer NanoKnife', 'kanker pankreas stadium IV NanoKnife', 'IV期胰腺癌纳米刀案例' ),
+	123 => array( 'ca ung thư tuyến tiền liệt TACE', 'prostate cancer TACE case', 'kasus kanker prostat TACE', '前列腺癌TACE案例' ),
+	124 => array( 'ung thư dạ dày TACE miễn dịch', 'stomach cancer TACE immunotherapy case', 'kanker lambung TACE imunoterapi', '胃癌TACE免疫治疗案例' ),
+	125 => array( 'ca ung thư dạ dày TACE', 'stomach cancer TACE case', 'kasus kanker lambung TACE', '胃癌TACE案例' ),
+	126 => array( 'ung thư dạ dày điều trị ít xâm lấn', 'minimally invasive stomach cancer case', 'kasus kanker lambung minimal invasif', '胃癌微创治疗案例' ),
+);
+foreach ( $patient_stories as $source_id => $terms ) {
+	$translations = function_exists( 'pll_get_post_translations' ) ? pll_get_post_translations( $source_id ) : array( 'vi' => $source_id );
+	foreach ( $translations as $lang => $id ) {
+		if ( ! isset( $lang_index[ $lang ] ) || ! ( $post = get_post( $id ) ) ) { continue; }
+		$focus = $terms[ $lang_index[ $lang ] - 1 ];
+		ucseo_set( $post, ucseo_data( $focus, sanitize_title( $focus ), $lang ) );
+	}
+}
+
 // Doctors own a name + specialty intent, not a broad cancer keyword.
 global $wpdb;
 $doctor_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'doctor' AND post_status IN ('publish','draft') ORDER BY ID ASC" );
