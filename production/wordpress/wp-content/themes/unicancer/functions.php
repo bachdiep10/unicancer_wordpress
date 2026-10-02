@@ -953,6 +953,16 @@ function unicancer_render_wordpress_page( $post ) {
 	if ( false !== $wpautop_priority ) { remove_filter( 'the_content', 'wpautop', $wpautop_priority ); }
 	$content = apply_filters( 'the_content', $raw_content );
 	if ( false !== $wpautop_priority ) { add_filter( 'the_content', 'wpautop', $wpautop_priority ); }
+	if ( 'doctor' === $post->post_type ) {
+		// The imported Astro template left its optional-video conditional as
+		// escaped text on profiles without a video. Remove only that complete
+		// placeholder wrapper; genuine profile content remains untouched.
+		$content = preg_replace(
+			'#<p>\s*&lt;!(?:&#8211;|--).*?\{doctor\.video.*?\)\}\s*(?:&#8211;&gt;|--&gt;)\s*</div>#isu',
+			'',
+			$content
+		);
+	}
 	$breadcrumb = unicancer_post_breadcrumb( $post );
 	$gallery_viewer = '';
 	if ( false !== strpos( $content, 'data-img-viewer-trigger' ) ) {
