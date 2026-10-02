@@ -12,6 +12,7 @@ if ( PHP_SAPI !== 'cli' ) { exit( "CLI only.\n" ); }
 require getcwd() . '/wp-load.php';
 
 $apply = in_array( '--apply', $argv, true );
+$change_slugs = false; // Existing public URLs are immutable.
 $stamp = '20261002';
 $stats = array( 'seen' => 0, 'changed' => 0, 'slug' => 0, 'seo' => 0, 'skipped' => 0 );
 
@@ -41,14 +42,14 @@ function ucseo_backup( $post_id, $key, $value ) {
 }
 
 function ucseo_set( $post, $data ) {
-	global $apply, $stats;
+	global $apply, $change_slugs, $stats;
 	$stats['seen']++;
 	$focus = ucseo_clean( $data['focus'] ?? '' );
 	$title = ucseo_limit( $data['title'] ?? '', 60 );
 	$desc  = ucseo_limit( $data['desc'] ?? '', 155 );
 	$slug  = sanitize_title( $data['slug'] ?? $post->post_name );
 	$changes = array();
-	if ( $slug && $slug !== $post->post_name ) { $changes['slug'] = array( $post->post_name, $slug ); }
+	if ( $change_slugs && $slug && $slug !== $post->post_name ) { $changes['slug'] = array( $post->post_name, $slug ); }
 	foreach ( array( '_yoast_wpseo_focuskw' => $focus, '_yoast_wpseo_title' => $title, '_yoast_wpseo_metadesc' => $desc ) as $key => $value ) {
 		if ( $value && (string) get_post_meta( $post->ID, $key, true ) !== $value ) { $changes[ $key ] = array( get_post_meta( $post->ID, $key, true ), $value ); }
 	}
