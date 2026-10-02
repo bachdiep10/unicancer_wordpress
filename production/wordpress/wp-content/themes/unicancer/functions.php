@@ -467,10 +467,9 @@ function unicancer_render_mirror( $file, $html_override = null ) {
 
 	$html = preg_replace( '#<!-- Mirrored.*?-->#s', '', $html );
 	$html = preg_replace( '#<!-- Added by HTTrack -->.*?<!-- /Added by HTTrack -->#s', '', $html );
-	// The migrated shell does not call wp_head(), so add the temporary SEO block
-	// directly to every rendered page as well.
+	// wp_head() is injected below and is the single source for robots/SEO tags.
+	// Keeping the legacy mirror tags here would produce duplicate metadata.
 	$html = preg_replace( '#<meta\s+name=["\']robots["\'][^>]*>#i', '', $html );
-	$html = preg_replace( '#</head>#i', '<meta name="robots" content="noindex,nofollow,noarchive,noimageindex,max-image-preview:none"></head>', $html, 1 );
 
 	// Submit consultation forms to WordPress and store entries in the admin area.
 	$form_script = '<script>(function(){document.querySelectorAll(".consultation-form").forEach(function(form){form.addEventListener("submit",async function(event){event.preventDefault();event.stopImmediatePropagation();var button=form.querySelector("button[type=submit]"),status=form.querySelector(".form-status"),data=new FormData(form);data.append("action","unicancer_submit_consultation");data.append("nonce","' . esc_js( wp_create_nonce( 'unicancer_consultation' ) ) . '");data.append("source_url",window.location.href);if(button){button.disabled=true;button.textContent=form.dataset.submittingText||"Đang gửi..."}if(status){status.classList.remove("hidden");status.textContent=""}try{var response=await fetch("' . esc_url( admin_url( 'admin-ajax.php' ) ) . '",{method:"POST",body:data,credentials:"same-origin"}),json=await response.json();if(!response.ok||!json.success)throw new Error(json.data&&json.data.message?json.data.message:(form.dataset.errorText||"Gửi không thành công."));if(status){status.textContent=json.data.message;status.style.color="#159648"}form.reset();var dialog=document.getElementById("success-modal");if(dialog&&dialog.showModal)dialog.showModal()}catch(error){if(status){status.textContent=error.message;status.style.color="#dc2626"}}finally{if(button){button.disabled=false;button.textContent=form.dataset.submitText||"Đặt lịch với chuyên gia ngay"}}},true)})})();</script>';
@@ -655,6 +654,14 @@ function unicancer_patient_video_embed( $url ) {
 }
 
 function unicancer_customize_patient_story( $content, $post ) {
+	$lang = function_exists( 'pll_get_post_language' ) ? pll_get_post_language( $post->ID, 'slug' ) : 'vi';
+	$labels = array(
+		'vi'    => array( 'nationality' => 'Quốc tịch:', 'diagnosis' => 'Chẩn đoán:', 'treatment' => 'Phác đồ điều trị:', 'empty' => 'Chưa có Featured Image' ),
+		'en'    => array( 'nationality' => 'Nationality:', 'diagnosis' => 'Diagnosis:', 'treatment' => 'Treatment plan:', 'empty' => 'No featured image' ),
+		'id'    => array( 'nationality' => 'Kewarganegaraan:', 'diagnosis' => 'Diagnosis:', 'treatment' => 'Rencana perawatan:', 'empty' => 'Belum ada gambar unggulan' ),
+		'zh-cn' => array( 'nationality' => '国籍：', 'diagnosis' => '诊断：', 'treatment' => '治疗方案：', 'empty' => '暂无特色图片' ),
+	);
+	$text = $labels[ $lang ] ?? $labels['vi'];
 	$name = unicancer_patient_story_value( $post->ID, 'uc_patient_name', $content, '#class="max-w-64[^>]*>([^<]+)#u' );
 	$nationality = unicancer_patient_story_value( $post->ID, 'uc_patient_nationality', $content, '#Quốc tịch:</span>\s*([^<]+)#u' );
 	$diagnosis = unicancer_patient_story_value( $post->ID, 'uc_patient_diagnosis', $content, '#Chẩn đoán:</div>\s*<div[^>]*>\s*<div>([^<]+)#u' );
@@ -666,9 +673,9 @@ function unicancer_customize_patient_story( $content, $post ) {
 	if ( ! $media ) {
 		$image = get_the_post_thumbnail_url( $post->ID, 'large' );
 		if ( ! $image && preg_match( '#<div class="flex justify-center xl:justify-end items-center">\s*<img[^>]+src="([^"]+)"#i', $content, $match ) ) { $image = $match[1]; }
-		$media = $image ? '<img src="' . esc_url( $image ) . '" alt="' . esc_attr( $name ) . '">' : '<div class="uc-patient-media-empty">Chưa có Featured Image</div>';
+		$media = $image ? '<img src="' . esc_url( $image ) . '" alt="' . esc_attr( $name ) . '">' : '<div class="uc-patient-media-empty">' . esc_html( $text['empty'] ) . '</div>';
 	}
-	$hero = '<div class="uc-patient-profile"><div class="uc-patient-details"><h2>' . esc_html( $name ?: get_the_title( $post ) ) . '</h2><dl><div><dt>Quốc tịch:</dt><dd>' . esc_html( $nationality ) . '</dd></div><div><dt>Chẩn đoán:</dt><dd>' . esc_html( $diagnosis ) . '</dd></div><div><dt>Phác đồ điều trị:</dt><dd>' . esc_html( $treatment ) . '</dd></div></dl><div class="uc-patient-contacts"><a class="is-zalo" href="' . esc_url( $zalo ) . '" target="_blank" rel="noopener">Zalo</a><a class="is-whatsapp" href="' . esc_url( $whatsapp ) . '" target="_blank" rel="noopener">WhatsApp</a></div></div><div class="uc-patient-media">' . $media . '</div></div>';
+	$hero = '<div class="uc-patient-profile"><div class="uc-patient-details"><h1>' . esc_html( $name ?: get_the_title( $post ) ) . '</h1><dl><div><dt>' . esc_html( $text['nationality'] ) . '</dt><dd>' . esc_html( $nationality ) . '</dd></div><div><dt>' . esc_html( $text['diagnosis'] ) . '</dt><dd>' . esc_html( $diagnosis ) . '</dd></div><div><dt>' . esc_html( $text['treatment'] ) . '</dt><dd>' . esc_html( $treatment ) . '</dd></div></dl><div class="uc-patient-contacts"><a class="is-zalo" href="' . esc_url( $zalo ) . '" target="_blank" rel="noopener">Zalo</a><a class="is-whatsapp" href="' . esc_url( $whatsapp ) . '" target="_blank" rel="noopener">WhatsApp</a></div></div><div class="uc-patient-media">' . $media . '</div></div>';
 	libxml_use_internal_errors( true );
 	$dom = new DOMDocument();
 	$dom->loadHTML( '<?xml encoding="utf-8" ?><div id="uc-patient-root">' . $content . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
@@ -678,6 +685,30 @@ function unicancer_customize_patient_story( $content, $post ) {
 		$fragment = new DOMDocument(); $fragment->loadHTML( '<?xml encoding="utf-8" ?>' . $hero, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
 		$new_node = $fragment->getElementsByTagName( 'div' )->item( 0 );
 		$grids->item( 0 )->parentNode->replaceChild( $dom->importNode( $new_node, true ), $grids->item( 0 ) );
+	}
+	// The imported article repeats its post title as an H1 and contains display
+	// metadata such as the date and "Share to" label. The profile title above is
+	// the page's only H1, so remove that duplicated, presentation-only content.
+	$title_key = preg_replace( '/[^\p{L}\p{N}]+/u', '', mb_strtolower( html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' ) ) );
+	$nodes = array();
+	foreach ( $xpath->query( '//h1[not(ancestor::div[contains(concat(" ", normalize-space(@class), " "), " uc-patient-profile ")])]' ) as $node ) { $nodes[] = $node; }
+	foreach ( $nodes as $node ) {
+		$node_key = preg_replace( '/[^\p{L}\p{N}]+/u', '', mb_strtolower( trim( $node->textContent ) ) );
+		if ( $node_key === $title_key ) {
+			$node->parentNode->removeChild( $node );
+		} else {
+			$replacement = $dom->createElement( 'h2' );
+			while ( $node->firstChild ) { $replacement->appendChild( $node->firstChild ); }
+			$node->parentNode->replaceChild( $replacement, $node );
+		}
+	}
+	$nodes = array();
+	foreach ( $xpath->query( '//*[not(*)]' ) as $node ) { $nodes[] = $node; }
+	foreach ( $nodes as $node ) {
+		$value = trim( preg_replace( '/\s+/u', ' ', $node->textContent ) );
+		if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $value ) || preg_match( '/^(?:Chia sẻ tới|Share to|Bagikan ke|分享到)\s*:?$/iu', $value ) ) {
+			if ( $node->parentNode ) { $node->parentNode->removeChild( $node ); }
+		}
 	}
 	$root = $dom->getElementById( 'uc-patient-root' ); $output = '';
 	foreach ( $root->childNodes as $node ) { $output .= $dom->saveHTML( $node ); }
@@ -796,7 +827,7 @@ function unicancer_render_wordpress_page( $post ) {
 	if ( 'page' === $post->post_type && ( 'news' === $post->post_name || ( $vi_news_id && 'news' === get_post_field( 'post_name', $vi_news_id ) ) ) ) {
 		$raw_content = unicancer_news_page_content( $lang, $post->ID );
 	}
-	if ( 'patient_story' === $post->post_type && 'vi' === $lang ) { $raw_content = unicancer_customize_patient_story( $raw_content, $post ); }
+	if ( 'patient_story' === $post->post_type ) { $raw_content = unicancer_customize_patient_story( $raw_content, $post ); }
 	if ( in_array( $post->post_type, array( 'patient_story', 'doctor', 'cancer', 'treatment', 'post' ), true ) ) {
 		$raw_content = unicancer_replace_article_sidebar( $raw_content );
 	}
@@ -821,9 +852,15 @@ function unicancer_render_wordpress_page( $post ) {
 		$page .= '<script>(function(){document.querySelectorAll(".home-carousel").forEach(function(root){var track=root.querySelector(".home-carousel-track"),slides=[].slice.call(root.querySelectorAll(".home-carousel-slide:not([data-clone=true])")),dots=[].slice.call(root.querySelectorAll(".home-carousel-dot")),prev=root.querySelector(".home-carousel-prev"),next=root.querySelector(".home-carousel-next"),index=0,timer;function show(i){if(!slides.length||!track)return;index=(i+slides.length)%slides.length;var cloneOffset=root.querySelector(".home-carousel-slide[data-clone=true]")?1:0;track.style.transform="translateX(-"+((index+cloneOffset)*100)+"%)";dots.forEach(function(dot,n){dot.classList.toggle("bg-primary",n===index);dot.classList.toggle("bg-primary/30",n!==index)})}function start(){clearInterval(timer);timer=setInterval(function(){show(index+1)},4500)}if(prev)prev.addEventListener("click",function(){show(index-1);start()});if(next)next.addEventListener("click",function(){show(index+1);start()});dots.forEach(function(dot,n){dot.addEventListener("click",function(){show(n);start()})});show(0);start()});document.querySelectorAll("[data-faq-trigger]").forEach(function(trigger){trigger.addEventListener("click",function(){var item=trigger.closest("[data-faq-item]"),panel=item&&item.querySelector("[data-faq-panel]"),open=trigger.getAttribute("aria-expanded")==="true";document.querySelectorAll("[data-faq-trigger]").forEach(function(other){other.setAttribute("aria-expanded","false");var otherItem=other.closest("[data-faq-item]"),otherPanel=otherItem&&otherItem.querySelector("[data-faq-panel]");if(otherPanel)otherPanel.classList.add("hidden")});if(!open){trigger.setAttribute("aria-expanded","true");if(panel)panel.classList.remove("hidden")}})})})();</script>';
 	}
 	$html = preg_replace( '#<main\b[^>]*>.*?</main>#s', $page, $html, 1 );
-	$html = preg_replace( '#<title>.*?</title>#s', '<title>' . esc_html( get_the_title( $post ) ) . ' | ' . esc_html( get_bloginfo( 'name' ) ) . '</title>', $html, 1 );
+	// Remove metadata inherited from the mirrored shell. Yoast and Polylang add
+	// the canonical title, description, Open Graph, schema and hreflang markup.
+	$html = preg_replace( '#<title\b[^>]*>.*?</title>#is', '', $html );
+	$html = preg_replace( '#<link\b(?=[^>]*\brel=["\']canonical["\'])[^>]*>#i', '', $html );
+	$html = preg_replace( '#<meta\b(?=[^>]*(?:name|property)=["\'](?:description|keywords|robots|og:[^"\']+|twitter:[^"\']+)["\'])[^>]*>#i', '', $html );
+	$html = preg_replace( '#<script\b(?=[^>]*\btype=["\']application/ld\+json["\'])[^>]*>.*?</script>#is', '', $html );
 	$extra_css = '<style>.unicancer-wordpress-page{background:#fff;min-height:55vh}.unicancer-wordpress-page__inner{max-width:1536px;margin:0 auto;padding:24px 16px 55px}.unicancer-breadcrumb{display:flex;align-items:center;gap:9px;margin:0 0 18px;font:400 13px/1.5 Inter,Roboto,Arial,sans-serif;color:#333;white-space:nowrap;overflow:hidden}.unicancer-breadcrumb a{color:#1685d1;text-decoration:none}.unicancer-breadcrumb a:hover{text-decoration:underline}.unicancer-breadcrumb span:last-child{overflow:hidden;text-overflow:ellipsis}.uc-patient-profile{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,1fr);gap:42px;align-items:center;padding:18px 0 28px}.uc-patient-details h2{display:inline-block;margin:0 0 18px!important;border-bottom:3px solid #ffc400;padding-bottom:7px;font:700 30px/1.2 Inter,Arial,sans-serif!important}.uc-patient-details dl{margin:0}.uc-patient-details dl>div{display:flex;gap:8px;margin:0 0 18px;font-size:17px}.uc-patient-details dt{font-weight:700}.uc-patient-details dd{margin:0}.uc-patient-contacts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}.uc-patient-contacts a{padding:11px;border-radius:8px;color:#fff!important;text-align:center;text-decoration:none!important;font-weight:700;box-shadow:0 5px 12px #0002}.uc-patient-contacts .is-zalo{background:#1577f8}.uc-patient-contacts .is-whatsapp{background:#20b75a}.uc-patient-media{height:270px;border-radius:12px;overflow:hidden;background:#f3f4f6}.uc-patient-media img,.uc-patient-media iframe{display:block;width:100%;height:100%;object-fit:cover;border:0}.uc-patient-media-empty{display:grid;place-items:center;height:100%;color:#777}.uc-gallery-viewer[hidden]{display:none!important}.uc-gallery-viewer{position:fixed;inset:0;z-index:99999;display:grid;grid-template-columns:64px minmax(0,1fr) 64px;grid-template-rows:minmax(0,1fr) 92px;align-items:center;background:#000d;padding:60px 18px 0}.uc-gallery-image{grid-column:2;grid-row:1;display:block;max-width:100%;max-height:calc(100vh - 170px);margin:auto;border-radius:8px;object-fit:contain}.uc-gallery-close,.uc-gallery-prev,.uc-gallery-next{z-index:2;border:0;border-radius:50%;background:#fff2;color:#fff;cursor:pointer}.uc-gallery-close{position:absolute;right:20px;top:16px;width:44px;height:44px;font-size:34px;line-height:1}.uc-gallery-prev,.uc-gallery-next{width:48px;height:48px;font-size:42px;line-height:1}.uc-gallery-prev{grid-column:1;grid-row:1}.uc-gallery-next{grid-column:3;grid-row:1}.uc-gallery-prev:disabled,.uc-gallery-next:disabled{opacity:.25;cursor:default}.uc-gallery-footer{grid-column:1/4;grid-row:2;display:flex;align-items:center;gap:14px;min-width:0;color:#fff}.uc-gallery-count{width:55px;text-align:center}.uc-gallery-thumbs{display:flex;gap:8px;min-width:0;overflow-x:auto;padding:6px 0}.uc-gallery-thumbs button{flex:0 0 72px;height:58px;padding:0;border:2px solid transparent;border-radius:5px;overflow:hidden;opacity:.6;cursor:pointer}.uc-gallery-thumbs button.is-active{border-color:#fff;opacity:1}.uc-gallery-thumbs img{width:100%;height:100%;object-fit:cover}@media(max-width:800px){.uc-patient-profile{grid-template-columns:1fr;gap:22px}.uc-patient-media{height:230px}.uc-patient-contacts{grid-template-columns:1fr}.uc-patient-details dl>div{display:block}.uc-patient-details dd{margin-top:4px}.uc-gallery-viewer{grid-template-columns:46px minmax(0,1fr) 46px;padding-left:5px;padding-right:5px}.uc-gallery-prev,.uc-gallery-next{width:40px;height:40px}}.unicancer-wordpress-page .alignwide{max-width:1536px;margin-left:auto;margin-right:auto}.unicancer-wordpress-page .alignfull{width:100%}</style>';
 	$extra_css = str_replace( '</style>', '.uc-news-page{font-family:Inter,Roboto,Arial,sans-serif}.uc-news-page>header{text-align:center;padding:12px 0 26px}.uc-news-page>header h1{font-size:38px;margin:0 0 10px}.uc-news-page>header p{color:#666}.uc-news-tabs{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:30px}.uc-news-tabs a{padding:10px 20px;border-radius:8px;background:#edf7ff;color:#0875ce;text-decoration:none}.uc-news-tabs a.is-active,.uc-news-tabs a:hover{background:#ff8617;color:#fff}.uc-news-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}.uc-news-grid article{overflow:hidden;border-radius:14px;background:#fff;box-shadow:0 4px 14px #0002}.uc-news-grid article>a{display:flex;flex-direction:column;height:100%;color:#222;text-decoration:none}.uc-news-grid img{width:100%;height:210px;object-fit:cover}.uc-news-card-body{display:flex;flex-direction:column;flex:1;padding:18px}.uc-news-card-body>span{align-self:flex-start;border-radius:14px;background:#e6f4ff;color:#0875ce;padding:4px 10px;font-size:13px}.uc-news-card-body h2{font-size:20px;line-height:1.35;margin:12px 0}.uc-news-card-body p{color:#666;line-height:1.55;margin:0 0 15px}.uc-news-card-body small{margin-top:auto;color:#888}@media(max-width:900px){.uc-news-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.uc-news-grid{grid-template-columns:1fr}.uc-news-grid img{height:200px}}</style>', $extra_css );
+	$extra_css = str_replace( '</style>', '.uc-patient-details h1{display:inline-block;margin:0 0 18px!important;border-bottom:3px solid #ffc400;padding-bottom:7px;font:700 30px/1.2 Inter,Arial,sans-serif!important}</style>', $extra_css );
 	if ( 'post' === $post->post_type ) {
 		$extra_css = str_replace( '</style>', '.unicancer-wordpress-page section.max-w-384.flex{align-items:flex-start;gap:24px}.unicancer-wordpress-page section.max-w-384.flex>.grow{min-width:0;max-width:calc(100% - 280px)}.unicancer-wordpress-page section.max-w-384.flex>.grow>h1{max-width:1050px;margin-left:auto!important;margin-right:auto!important;font-size:clamp(28px,3vw,42px)!important;line-height:1.25!important}.unicancer-wordpress-page .lexical-rich-text{max-width:980px;margin-left:auto;margin-right:auto;font-size:17px;line-height:1.75;overflow-wrap:anywhere}.unicancer-wordpress-page .lexical-rich-text p{margin:0 0 18px}.unicancer-wordpress-page .lexical-rich-text img{display:block;width:auto!important;max-width:100%!important;max-height:680px!important;height:auto!important;object-fit:contain;margin:22px auto;border-radius:10px}.unicancer-wordpress-page .lexical-rich-text iframe,.unicancer-wordpress-page .lexical-rich-text video{display:block;width:100%;max-width:900px;aspect-ratio:16/9;height:auto;margin:22px auto}.unicancer-wordpress-page .lexical-rich-text table{display:block;max-width:100%;overflow-x:auto}.unicancer-wordpress-page .lexical-rich-text>*{min-width:0;max-width:100%;box-sizing:border-box}@media(max-width:1023px){.unicancer-wordpress-page section.max-w-384.flex>.grow{max-width:100%;padding-left:0!important}.unicancer-wordpress-page section.max-w-384.flex{display:block}.unicancer-wordpress-page section.max-w-384.flex>.uc-article-sidebar{display:none}}@media(max-width:600px){.unicancer-wordpress-page section.max-w-384.flex>.grow>h1{font-size:26px!important}.unicancer-wordpress-page .lexical-rich-text{font-size:16px;line-height:1.65}.unicancer-wordpress-page .lexical-rich-text img{max-height:520px!important}}</style>', $extra_css );
 		$extra_css = str_replace( '</style>', '.unicancer-wordpress-page section.max-w-384.flex>.grow>h1{max-width:1000px;font-size:clamp(26px,2.2vw,34px)!important;line-height:1.3!important}</style>', $extra_css );
