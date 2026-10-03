@@ -48,23 +48,9 @@ add_filter( 'robots_txt', 'unicancer_block_robots_txt', PHP_INT_MAX, 2 );
  * repaired. These redirects do not rename posts or mutate stored slugs.
  */
 function unicancer_redirect_stable_legacy_routes() {
-	if ( is_admin() || wp_doing_ajax() ) { return; }
-	$path = trim( (string) wp_parse_url( $_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH ), '/' );
-	$destination = '';
-
-	if ( '' === $path ) {
-		// Do not use pll_home_url() here: while the static front page is being
-		// queried Polylang can return the page's long title-derived permalink.
-		$destination = trailingslashit( untrailingslashit( (string) get_option( 'home' ) ) . '/vi' );
-	} elseif ( 'vi/cau-chuyen-benh-nhan' === $path ) {
-		$page = get_post( 184 );
-		$destination = $page && 'publish' === $page->post_status ? get_permalink( $page ) : home_url( '/vi/patient-stories/' );
-	}
-
-	if ( ! $destination ) { return; }
-	if ( ! empty( $_SERVER['QUERY_STRING'] ) ) { $destination .= '?' . $_SERVER['QUERY_STRING']; }
-	wp_safe_redirect( $destination, 301, 'UNI-ASIA stable legacy route' );
-	exit;
+	// The canonical site is Vietnamese-only. Legacy redirects are handled by
+	// the MU plugin from the migration-generated URL map.
+	return;
 }
 add_action( 'template_redirect', 'unicancer_redirect_stable_legacy_routes', -1000 );
 
@@ -160,6 +146,30 @@ function unicancer_localize_internal_url( $url, $lang = '' ) {
 	$path = '/' . ltrim( $parts['path'] ?? '/', '/' );
 	if ( preg_match( '#^/(?:wp-admin|wp-login\.php|wp-json|wp-content|wp-includes)(?:/|$)#i', $path ) ) { return $url; }
 	$path = preg_replace( '#^/(?:vi|en|id|zh-cn)(?=/|$)#i', '', $path );
+	$route_map = array(
+		'/doctors'         => '/bac-si',
+		'/cancers'         => '/ung-thu',
+		'/treatments'      => '/phuong-phap-dieu-tri',
+		'/patient-stories' => '/cau-chuyen-benh-nhan',
+		'/special-topics'  => '/chu-de-ung-thu',
+		'/news'            => '/tin-tuc',
+		'/about-us'        => '/gioi-thieu',
+		'/contact-us'      => '/lien-he',
+		'/services'        => '/dich-vu-y-te',
+		'/privacy-policy'  => '/chinh-sach-bao-mat',
+		'/statement'       => '/mien-tru-trach-nhiem',
+	);
+	foreach ( $route_map as $legacy_route => $vietnamese_route ) {
+		if ( $path === $legacy_route || 0 === strpos( $path, $legacy_route . '/' ) ) {
+			$path = $vietnamese_route . substr( $path, strlen( $legacy_route ) );
+			break;
+		}
+	}
+	$legacy_key = '/' . trim( $path, '/' ) . '/';
+	$redirect_map = get_option( 'unicancer_vi_redirect_map', array() );
+	if ( isset( $redirect_map[ $legacy_key ] ) ) {
+		$path = $redirect_map[ $legacy_key ];
+	}
 	if ( preg_match( '#^/(?:home|index)/?$#i', $path ) ) { $path = '/'; }
 	$site_root = untrailingslashit( (string) get_option( 'home' ) );
 	$base_url = $site_root . ( '/' === $path ? '/' : $path );
@@ -174,7 +184,7 @@ function unicancer_localize_internal_url( $url, $lang = '' ) {
 			}
 		}
 	}
-	$url = $site_root . '/' . $lang . ( '/' === $path ? '/' : $path );
+	$url = $site_root . ( '/' === $path ? '/' : $path );
 
 	unicancer_localized_url_suffix:
 	if ( isset( $parts['query'] ) && false === strpos( $url, '?' ) ) { $url .= '?' . $parts['query']; }
@@ -285,11 +295,8 @@ function unicancer_migrate_url( $url, $source_file ) {
 	if ( in_array( $host, array( 'unicancercenter.com', 'www.unicancercenter.com' ), true ) ) {
 		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
 		if ( preg_match( '#^/(vi|en|id|zh-cn)(?:/|$)#', $path, $path_language ) ) {
-			// URLs saved in translated content are already intentional localized
-			// routes. Preserve them verbatim: resolving `/news/21/` through
-			// url_to_postid() can incorrectly match the News parent page and make
-			// every article card point back to the archive.
-			return home_url( '/' . ltrim( $path, '/' ) ) . $fragment;
+			$path = preg_replace( '#^/(?:vi|en|id|zh-cn)(?=/|$)#i', '', $path );
+			return unicancer_localize_internal_url( home_url( '/' . ltrim( $path, '/' ) ) . $fragment, 'vi' );
 		}
 		return unicancer_localize_internal_url( home_url( '/' . ltrim( $path, '/' ) ) . $fragment );
 	}
@@ -362,7 +369,8 @@ function unicancer_migrate_imported_content_urls( $content ) {
 	$route = $routes[ $post->post_type ] ?? '';
 	$file  = unicancer_mirror_file();
 	if ( ! $file ) {
-		$file = UNICANCER_MIRROR_DIR . '/uniasiacancer.com/vi/' . $route . '/' . $post->post_name . '/index.html';
+		$source_slug = get_post_meta( $post->ID, '_unicancer_pre_vi_slug', true ) ?: $post->post_name;
+		$file = UNICANCER_MIRROR_DIR . '/uniasiacancer.com/vi/' . $route . '/' . $source_slug . '/index.html';
 	}
 	if ( ! $route || ! is_file( $file ) ) {
 		return $content;
@@ -392,6 +400,7 @@ add_filter( 'the_content', 'unicancer_migrate_imported_content_urls', 7 );
  * used, so visitors never land on an invalid handcrafted URL.
  */
 function unicancer_language_switcher_html() {
+	return '';
 	$labels = array(
 		'vi' => 'Tiếng Việt',
 		'en' => 'English',
@@ -707,26 +716,11 @@ function unicancer_normalize_rendered_seo( $html, $post ) {
 	if ( $title && function_exists( 'wpseo_replace_vars' ) ) { $title = wpseo_replace_vars( $title, $post ); }
 	if ( ! $title ) { $title = get_the_title( $post ) . ' | ' . get_bloginfo( 'name' ); }
 
-	$alternates = array();
-	$translations = function_exists( 'pll_get_post_translations' ) ? (array) pll_get_post_translations( $post->ID ) : array( $lang => $post->ID );
-	foreach ( $translations as $translation_lang => $translation_id ) {
-		$translation_lang = (string) $translation_lang;
-		$translation_post = get_post( (int) $translation_id );
-		if ( ! $translation_post || 'publish' !== $translation_post->post_status ) { continue; }
-		$translation_is_front = function_exists( 'pll_get_post' ) && (int) $translation_id === (int) pll_get_post( $front_id, $translation_lang );
-		$href = $translation_is_front ? $language_root( $translation_lang ) : get_permalink( $translation_post );
-		$hreflang = 'zh-cn' === $translation_lang ? 'zh-CN' : $translation_lang;
-		$alternates[ $translation_lang ] = '<link rel="alternate" hreflang="' . esc_attr( $hreflang ) . '" href="' . esc_url( $href ) . '">';
-	}
-	$x_default = isset( $alternates['vi'] ) ? $language_root( 'vi' ) : $canonical;
-
 	$html = preg_replace( '#<title\b[^>]*>.*?</title>#is', '', $html );
 	$html = preg_replace( '#<link\b(?=[^>]*\brel=["\']canonical["\'])[^>]*>#i', '', $html );
 	$html = preg_replace( '#<link\b(?=[^>]*\brel=["\']alternate["\'])(?=[^>]*\bhreflang=["\'][^"\']+["\'])[^>]*>#i', '', $html );
 	$seo = '<title>' . esc_html( $title ) . '</title>'
-		. '<link rel="canonical" href="' . esc_url( $canonical ) . '">'
-		. implode( '', $alternates )
-		. '<link rel="alternate" hreflang="x-default" href="' . esc_url( $x_default ) . '">';
+		. '<link rel="canonical" href="' . esc_url( $canonical ) . '">';
 	return preg_replace( '#</head>#i', $seo . '</head>', $html, 1 );
 }
 
