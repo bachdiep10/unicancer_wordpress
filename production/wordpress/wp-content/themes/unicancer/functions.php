@@ -145,6 +145,7 @@ function unicancer_current_language_slug() {
 function unicancer_localize_internal_url( $url, $lang = '' ) {
 	$lang = $lang ?: unicancer_current_language_slug();
 	if ( '' === $url || '#' === $url[0] ) { return $url; }
+	if ( preg_match( '~^(?:mailto:|tel:|data:|javascript:)~i', $url ) ) { return $url; }
 	$parts = wp_parse_url( html_entity_decode( $url, ENT_QUOTES, 'UTF-8' ) );
 	if ( false === $parts ) { return $url; }
 	$host = $parts['host'] ?? '';
