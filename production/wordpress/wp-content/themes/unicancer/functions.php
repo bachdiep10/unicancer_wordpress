@@ -16,6 +16,10 @@ require_once get_template_directory() . '/inc/content-model.php';
 
 // Keep archive behavior outside imported content so editor saves cannot expose it.
 add_action( 'wp_enqueue_scripts', function () {
+	if ( is_singular( 'special_topic' ) ) {
+		wp_enqueue_script( 'unicancer-special-carousels', get_template_directory_uri() . '/assets/js/special-carousels.js', array(), '20261003', true );
+		wp_enqueue_style( 'unicancer-special-carousels', get_template_directory_uri() . '/assets/css/special-carousels.css', array(), '20261003' );
+	}
 	if ( is_front_page() ) {
 		wp_enqueue_script( 'unicancer-home-faq', get_template_directory_uri() . '/assets/js/home-faq.js', array(), '20261003', true );
 	}
