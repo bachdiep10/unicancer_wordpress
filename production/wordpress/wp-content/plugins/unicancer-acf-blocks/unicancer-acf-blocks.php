@@ -46,8 +46,8 @@ function uc_blocks_register() {
 add_action( 'init', 'uc_blocks_register', 20 );
 
 function uc_blocks_frontend_assets() {
-	$doctor_archive = is_page( 182 ) || ( is_page() && 'bac-si' === get_post_field( 'post_name', get_queried_object_id() ) );
-	if ( has_block( 'unicancer/consultation-form' ) || $doctor_archive ) {
+	$injected_form_page = is_page( array( 182, 188 ) );
+	if ( has_block( 'unicancer/consultation-form' ) || $injected_form_page ) {
 		wp_enqueue_script( 'unicancer-block-frontend' );
 		wp_localize_script( 'unicancer-block-frontend', 'unicancerBlockForm', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 'unicancer_consultation' ) ) );
 	}
