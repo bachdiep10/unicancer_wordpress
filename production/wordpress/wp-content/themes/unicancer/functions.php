@@ -22,6 +22,9 @@ add_action( 'wp_enqueue_scripts', function () {
 	if ( is_page( 'tin-tuc' ) ) {
 		wp_enqueue_script( 'unicancer-news-tabs', get_template_directory_uri() . '/assets/js/news-tabs.js', array(), '20261003', true );
 	}
+	if ( is_page( 'cau-chuyen-benh-nhan' ) ) {
+		wp_enqueue_script( 'unicancer-patient-tabs', get_template_directory_uri() . '/assets/js/patient-tabs.js', array(), '20261003', true );
+	}
 } );
 
 /**
