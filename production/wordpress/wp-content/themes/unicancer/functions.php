@@ -16,6 +16,9 @@ require_once get_template_directory() . '/inc/content-model.php';
 
 // Keep archive behavior outside imported content so editor saves cannot expose it.
 add_action( 'wp_enqueue_scripts', function () {
+	if ( is_front_page() ) {
+		wp_enqueue_script( 'unicancer-home-faq', get_template_directory_uri() . '/assets/js/home-faq.js', array(), '20261003', true );
+	}
 	if ( is_page( 'tin-tuc' ) ) {
 		wp_enqueue_script( 'unicancer-news-tabs', get_template_directory_uri() . '/assets/js/news-tabs.js', array(), '20261003', true );
 	}
