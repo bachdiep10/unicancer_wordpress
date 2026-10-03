@@ -963,11 +963,13 @@ function unicancer_render_wordpress_page( $post ) {
 		// escaped text on profiles without a video. Remove only that complete
 		// placeholder wrapper; genuine profile content remains untouched.
 		$doctor_video_cleaned = preg_replace(
-			'#<p>\s*&lt;!(?:&#8211;|--)\s*\{doctor\.video\s*&amp;&amp;\s*\(.{0,2000}?\)\}\s*(?:&#8211;&gt;|--&gt;)\s*</div>#isu',
+			'~<p>\s*&lt;!(?:&#8211;|--)\s*\{doctor\.video\s*&amp;&amp;\s*\(\s*</p>.*?\)\}\s*(?:&#8211;&gt;|--&gt;)~isu',
 			'',
 			$content
 		);
-		if ( null !== $doctor_video_cleaned ) { $content = $doctor_video_cleaned; }
+		if ( null !== $doctor_video_cleaned ) {
+			$content = preg_replace( '~<div\b[^>]*>\s*\{dict\.video\}\s*</div>~iu', '', $doctor_video_cleaned );
+		}
 	}
 	$breadcrumb = unicancer_post_breadcrumb( $post );
 	$gallery_viewer = '';
