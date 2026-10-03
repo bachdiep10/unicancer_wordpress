@@ -46,7 +46,8 @@ function uc_blocks_register() {
 add_action( 'init', 'uc_blocks_register', 20 );
 
 function uc_blocks_frontend_assets() {
-	if ( has_block( 'unicancer/consultation-form' ) ) {
+	$doctor_archive = is_page( 182 ) || ( is_page() && 'bac-si' === get_post_field( 'post_name', get_queried_object_id() ) );
+	if ( has_block( 'unicancer/consultation-form' ) || $doctor_archive ) {
 		wp_enqueue_script( 'unicancer-block-frontend' );
 		wp_localize_script( 'unicancer-block-frontend', 'unicancerBlockForm', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 'unicancer_consultation' ) ) );
 	}
@@ -55,9 +56,9 @@ add_action( 'wp_enqueue_scripts', 'uc_blocks_frontend_assets' );
 
 function uc_blocks_default( $block, $field ) {
 	$defaults = array(
-		'patient-stories' => array( 'title' => 'Câu Chuyện bệnh nhân', 'description' => 'Tại Bệnh viện Uni-Asia Thành Đô, mỗi hành trình tìm kiếm cơ hội điều trị đều khắc ghi lòng dũng cảm và hy vọng.', 'link_text' => 'Thêm ca bệnh', 'link_url' => '/patient-stories/' ),
+		'patient-stories' => array( 'title' => 'Câu Chuyện bệnh nhân', 'description' => 'Tại Bệnh viện Uni-Asia Thành Đô, mỗi hành trình tìm kiếm cơ hội điều trị đều khắc ghi lòng dũng cảm và hy vọng.', 'link_text' => 'Thêm ca bệnh', 'link_url' => '/cau-chuyen-benh-nhan/' ),
 		'treatments' => array( 'title' => 'Kỹ thuật điều trị', 'description' => 'Cung cấp các giải pháp điều trị chính xác, có mục tiêu và đạt chất lượng quốc tế cho bệnh nhân trên toàn cầu.', 'link_text' => 'Công nghệ điều trị', 'link_url' => '/phuong-phap-dieu-tri/' ),
-		'mdt-doctors' => array( 'title' => 'Đội ngũ MDT', 'description' => 'Quy tụ các chuyên gia giàu kinh nghiệm hàng đầu trong lĩnh vực can thiệp xâm lấn tối thiểu và xạ trị ung thư.', 'link_text' => 'Thêm bác sĩ', 'link_url' => '/doctors/' ),
+		'mdt-doctors' => array( 'title' => 'Đội ngũ MDT', 'description' => 'Quy tụ các chuyên gia giàu kinh nghiệm hàng đầu trong lĩnh vực can thiệp xâm lấn tối thiểu và xạ trị ung thư.', 'link_text' => 'Thêm bác sĩ', 'link_url' => '/bac-si/' ),
 		'consultation-form' => array( 'title' => 'Tư Vấn Miễn Phí', 'description' => '', 'link_text' => '', 'link_url' => '' ),
 	);
 	$value = $defaults[ $block ][ $field ] ?? '';

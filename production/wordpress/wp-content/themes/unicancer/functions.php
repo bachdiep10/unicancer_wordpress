@@ -937,6 +937,17 @@ function unicancer_render_wordpress_page( $post ) {
 	if ( 'page' === $post->post_type && ( 'news' === $post->post_name || ( $vi_news_id && 'news' === get_post_field( 'post_name', $vi_news_id ) ) ) ) {
 		$raw_content = unicancer_news_page_content( $lang, $post->ID );
 	}
+	if ( 'page' === $post->post_type && ( 182 === (int) $post->ID || 'bac-si' === $post->post_name ) ) {
+		// The imported doctor archive ended with a snapshot form whose input
+		// elements were stripped during migration. Replace that complete legacy
+		// section with the reusable, functional WordPress consultation block.
+		$raw_content = preg_replace(
+			'#<section\b[^>]*\bid=["\']consultation-form["\'][^>]*>.*?</section>#isu',
+			'<!-- wp:unicancer/consultation-form /-->',
+			$raw_content,
+			1
+		);
+	}
 	if ( 'patient_story' === $post->post_type ) { $raw_content = unicancer_customize_patient_story( $raw_content, $post ); }
 	if ( in_array( $post->post_type, array( 'patient_story', 'doctor', 'cancer', 'treatment', 'post' ), true ) ) {
 		$raw_content = unicancer_replace_article_sidebar( $raw_content );
