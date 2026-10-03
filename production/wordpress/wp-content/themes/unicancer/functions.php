@@ -326,7 +326,8 @@ function unicancer_migrate_url( $url, $source_file ) {
 	// resolve those aliases. Never pass the unresolved `../` URL to `esc_url()`:
 	// WordPress would turn it into the invalid absolute URL `http://../...`.
 	if ( preg_match( '#^(?:\.\./)+(.+)$#', $url, $relative_match ) ) {
-		$relative_path = preg_replace( '#[?#].*$#', '', $relative_match[1] );
+		// Use a delimiter that is not also present inside the character class.
+		$relative_path = preg_replace( '~[?#].*$~', '', $relative_match[1] );
 		$relative_path = preg_replace( '#(?:^|/)index\.html$#i', '', $relative_path );
 		$relative_path = preg_replace( '#\.html$#i', '', $relative_path );
 		$relative_path = trim( $relative_path, '/' );
