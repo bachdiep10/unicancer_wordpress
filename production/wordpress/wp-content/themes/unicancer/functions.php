@@ -14,6 +14,13 @@ define( 'UNICANCER_MIRROR_DIR', get_template_directory() . '/mirror' );
 
 require_once get_template_directory() . '/inc/content-model.php';
 
+// Keep archive behavior outside imported content so editor saves cannot expose it.
+add_action( 'wp_enqueue_scripts', function () {
+	if ( is_page( 'tin-tuc' ) ) {
+		wp_enqueue_script( 'unicancer-news-tabs', get_template_directory_uri() . '/assets/js/news-tabs.js', array(), '20261003', true );
+	}
+} );
+
 /**
  * Temporarily keep the whole website out of search-engine indexes.
  * Remove these hooks and set blog_public back to 1 when SEO is ready.
